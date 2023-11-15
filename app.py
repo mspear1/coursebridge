@@ -34,6 +34,9 @@ def stream():
 
 @app.route('/create/', methods=['GET', 'POST'])
 def create_post():
+    '''
+    Method for creating the post; calls helper.add to insert a new post
+    '''
     # return render_template('create_post.html',
     #                        title='Create Post - Coursebridge')
 
@@ -58,6 +61,9 @@ def create_post():
 
 @app.route('/update/')
 def update_post():
+    '''
+    Method for updating the post
+    '''
     pass
 
 # You will probably not need the routes below, but they are here
