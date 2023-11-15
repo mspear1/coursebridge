@@ -1,15 +1,18 @@
 <!doctype html>
 <html lang='en'>
+<!-- @authors: Ashley, Emily, Louisa, Madelynn -->
+
 <head>
     <meta charset='utf-8'>
     <!-- for mobile-friendly pages -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name=author content="">
-    <title>{{ page_title }}</title>
+    <!-- <title>{{ page_title }}</title> -->
     <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
     {% block head_stuff %} {% endblock %}
 </head>
 <body>
+
 
 {% with messages = get_flashed_messages() %}
 {% if messages %}
@@ -25,13 +28,15 @@
 <nav>
   <ul>
     <li><a href="{{url_for('index')}}">home</a></li>
-    <li><a href="{{url_for('greet')}}">greet</a></li>
-    <li><a href="{{url_for('testform')}}">testform</a></li>
+    <li><a href="{{url_for('stream')}}">Stream</a></li>
+    <li><a href="{{url_for('create_post')}}">Create Form</a></li>
   </ul>
 </nav>
 {% endblock %}
 
-{% block main_content %}
+{% block header %}  {% endblock header %}
+
+{% block content %}
 <h1>Welcome!</h1>
 {% endblock %}
 
@@ -40,4 +45,5 @@
   {% endblock %}
   
 </body>
+
 </html>

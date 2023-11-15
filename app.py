@@ -9,7 +9,9 @@ app = Flask(__name__)
 import cs304dbi as dbi
 # import cs304dbi_sqlite3 as dbi
 
+import helper 
 import random
+from datetime import datetime
 
 app.secret_key = 'your secret here'
 # replace that with a random key
@@ -24,6 +26,39 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/')
 def index():
     return render_template('main.html',title='Hello')
+
+@app.route('/stream/')
+def stream():
+    return render_template('stream.html',
+                           title='Stream - Coursebridge')
+
+@app.route('/create/', methods=['GET', 'POST'])
+def create_post():
+    # return render_template('create_post.html',
+    #                        title='Create Post - Coursebridge')
+
+    if request.method == 'GET':
+        return render_template('create_post.html', title='Create Post - Coursebridge')
+    else:
+        conn = dbi.connect()
+
+        # check if the form should parse the stuff or should get as dictionary
+        form_info = request.form  # dictionary of form data
+        
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        
+        # Things to add:
+        # Post needs to refer to session or something to get the actual sid instead of manual input
+        #sid = request.form.get('sid')
+        # helper.add_post(conn, title, description, timestamp, location, tag, professor, course, None)
+        helper.add_post(conn, form_info, timestamp)
+
+        flash('Your post is created!')
+        return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
+
+@app.route('/update/')
+def update_post():
+    pass
 
 # You will probably not need the routes below, but they are here
 # just in case. Please delete them if you are not using them
@@ -75,7 +110,7 @@ if __name__ == '__main__':
     else:
         port = os.getuid()
     # set this local variable to 'wmdb' or your personal or team db
-    db_to_use = 'put_database_name_here_db' 
+    db_to_use = 'coursebridge_db' 
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True

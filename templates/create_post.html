@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block head_stuff %} 
+<title>{{ title }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+{% endblock head_stuff %}
+
+{% block header %} Create Form {% endblock header %}
+
+
+
+{% block content %}
+
+<!--Description, tag, location, date, professor (if discuss hw), class (if discuss hw), oncampus-->
+<form method=post action="{{url_for('create_post')}}" style="width:500px; margin: 50px;">
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" name="title" placeholder="Title">
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <input type="text" class="form-control" name="description" placeholder="Description">
+    </div>
+    <div class="form-group">
+        <label for="description">Location</label>
+        <input type="text" class="form-control" name="location" placeholder="Location">
+    </div>
+
+    <div id="datepicker" class="input-group date" data-date-format="mm-dd-yyyy">
+        <input class="form-control" type="text" name = "date" readonly />
+        <span class="input-group-addon">
+            <i class="glyphicon glyphicon-calendar"></i>
+        </span>
+    </div>
+
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="tag" id="tagSelect" value="discuss_hw">
+        <label class="form-check-label" id="tag">Discuss HW</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="tag" id="tagSelect" value="social">
+        <label class="form-check-label" id="tag">Socialize</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="tag" id="tagSelect" value="study_session">
+        <label class="form-check-label" id="tag">Study Session</label>
+    </div>
+
+    <!--Only appears if 'Discuss HW is selected'-->
+    <div class="form-group hidden" id="professorName">
+        <label for="professor">Professor Name</label>
+        <input type="text" class="form-control" name="professor" placeholder="Name">
+    </div>
+
+    <div class="form-group hidden" id="courseName">
+        <label for="courseName">Course Name</label>
+        <input type="text" class="form-control" name="class" placeholder="e.g., CS304">
+    </div>
+
+
+    <button type="submit" class="btn btn-primary" value="Create Post">Create Post</button>
+
+</form>
+
+{% endblock %}
+
+{% block end_scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#tagSelect').change(function () {
+            var selectedTag = $(this).val();
+
+            $('.form-group').addClass('hidden'); // Hide
+
+            if (selectedTag === 'discuss_hw') {
+                $('#professorName').removeClass('hidden');
+                $('#courseName').removeClass('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %}
