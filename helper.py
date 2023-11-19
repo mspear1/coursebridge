@@ -1,26 +1,64 @@
+# @authors: Ashley, Emily, Louisa, Madelynn
 import cs304dbi as dbi
+from datetime import datetime
 
 # ==========================================================
-# The functions that execute queries.
+# This file is to hold functions that execute queries.
 # These functions are called in app.py.
 
 def add_post(conn, form, time):
-    ''' Adds a new post to the database and commit
+    ''' Adds a new post to the database and commits
     '''
+    # Parsing form entries and cutting off entries that are too long 
+    # in case post request is not sent through the browser
     title = form['title']
+    if len(title) > 30:
+        title = title[:31]
     description = form['description']
+    if len(description) > 500:
+        description = description[:501]
     location = form['location']
+    oncampus = form['oncampus']
+    if len(location) > 50:
+        location = location[:51]
     tag = form['tag']
     professor = form.get('professor', None) # default is None
+    if len(professor) > 50:
+        professor = professor[:51]
     course = form.get('class', None)
-    date = form.get('date', None)   # need to fix after fixing calendar date selection
+    if len(course) > 8:
+        course = None
+    date = form.get('date')  
+    date = datetime.strptime(date, '%m-%d-%Y') # re-format the date so sql will accept it
     # timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S') if date else None
     curs = dbi.dict_cursor(conn)
-    # need to later add sid
+
+    # NEED TO LATER add sid
     curs.execute('''insert into post(title, description, timestamp, location, 
-                 tag, professor, class, date, status) 
-                 values (%s, %s, %s, %s, %s, %s, %s, %s, %s);''', 
-                 [title, description, time, location, tag, 
-                  professor, course, None, 'open']) # later replace None with functional date
+                 on_campus, tag, professor, class, date, status) 
+                 values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);''', 
+                 [title, description, time, location, oncampus, tag, 
+                  professor, course, date, 'open']) 
     conn.commit()
     
+def get_posts(conn):
+    '''
+    Retrieves posts with information for the stream page and returns them
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select student.name as studentname, student.major1 as major, student.major2_minor as major2_minor, 
+                 title, description, timestamp, location, on_campus, tag, professor, class, date, status
+                 from post, student 
+                 where post.sid is not NULL and post.sid = student.id;''')
+    return curs.fetchall()
+
+def filter_posts(conn, type):
+    '''
+    Filters posts based on criteron and returns
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select student.name as studentname, student.major1 as major, student.major2_minor as major2_minor, 
+                 title, description, timestamp, location, on_campus, tag, professor, class, date, status
+                 from post, student 
+                 where post.sid is not NULL and post.sid = student.id and tag = %s;''', [type])
+    return curs.fetchall()
