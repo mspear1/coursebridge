@@ -2,8 +2,10 @@
 */
 
 HTML {
-    --color-header: #007ea9;  /* color for H1-H6 and others. was deepskyblue but poor contrast. */
-    --color-hilite: #b50000;  /* was red, but this avoids WAVE contrast errors */ 
+    --color-header: #007ea9;
+    /* color for H1-H6 and others. was deepskyblue but poor contrast. */
+    --color-hilite: #b50000;
+    /* was red, but this avoids WAVE contrast errors */
     --color-focus: #56B929;
     --font-family: Verdana;
     font-family: var(--font-family)
@@ -22,13 +24,14 @@ h1 {
     color: var(--color-header);
 }
 
-h2, h3 {
+h2,
+h3 {
     color: var(--color-header);
 }
-    
+
 
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
-nav > ul {
+nav>ul {
     display: flex;
     flex-direction: row;
 }
@@ -39,19 +42,22 @@ nav ul {
     padding: 0px;
 }
 
-nav > ul > li {
+nav>ul>li {
     flex: 0 0 auto;
-    width: 15em; 
+    width: 15em;
 }
 
-nav button, nav a {
+nav button,
+nav a {
     display: block;
-    box-sizing: border-box; /* easier to make button and A the same size */
+    box-sizing: border-box;
+    /* easier to make button and A the same size */
     width: 100%;
     height: 40px;
     padding: 0px;
     padding-bottom: 5px;
-    background-color: var(--color-header); /* was #3498db */
+    background-color: var(--color-header);
+    /* was #3498db */
     border: 2px solid black;
     border-radius: 5px;
     cursor: pointer;
@@ -62,7 +68,8 @@ nav button, nav a {
 }
 
 /* Only the top-level buttons are centered; lower ones are left-aligned. */
-nav > ul > li > button , nav > ul > li > a {
+nav>ul>li>button,
+nav>ul>li>a {
     text-align: center;
 }
 
@@ -72,7 +79,142 @@ nav li.right {
     margin-left: auto;
 }
 
-nav button:hover, button:focus, nav a:hover, nav a:focus {
+nav button:hover,
+button:focus,
+nav a:hover,
+nav a:focus {
     background-color: var(--color-focus);
 }
 
+
+input[type="text"],
+textarea,
+select {
+    width: 80%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+
+}
+
+#datepicker {
+    margin-bottom: 20px;
+    width: 350px;
+}
+
+/* #description {
+    display: block;
+} */
+
+h2 {
+    font-size: 24px;
+    color: rgb(82, 120, 236);
+}
+
+body {
+    padding: 30px;
+}
+
+button {
+    background-color: #c8fcca;
+    color: white;
+    padding: 10px 20px;
+    font-size: 20px;
+    border: 1px solid black;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+
+.container {
+    display: inline-block;
+    /* Make the container inline so elements appear on the same line */
+}
+
+.stream-container {
+    padding: 20px;
+    background-color: rgb(221, 241, 248);
+    border: 2px solid rgb(134, 227, 253);
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 60%;
+
+}
+
+.post-container {
+    padding: 20px;
+    padding-bottom: 10px;
+    background-color: rgba(161, 228, 250, 0.744);
+    border: 2px solid rgb(7, 113, 143);
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* width: 80%; */
+    display: inline-block;
+    justify-content: space-between;
+    width: 98%;
+
+
+}
+
+@media only screen and (max-width: 768px) {
+    .stream-container {
+        width: 80%;
+    }
+}
+
+.inline {
+    display: inline-block;
+
+}
+
+
+.tagged {
+    /* justify-content: right; */
+    padding: 5px;
+    background-color: blueviolet;
+}
+
+.post-line {
+    display: block;
+}
+
+.custom-badge {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 8px;
+    padding-left: 8px;
+    color: white;
+    background-color: rgb(3, 128, 163);
+    border-radius: 10px;
+}
+
+h5 {
+    margin-left: 12px;
+}
+
+a {
+    text-decoration: none;
+    color: darkblue;
+}
+
+.badge {
+    float: right;
+}
+
+nav {
+    margin-bottom: 20px;
+}
+
+.filter {
+    padding: 5px;
+    width: 350px;
+    border: 2px solid rgb(46, 4, 88);
+    border-radius: 5px;
+}
+
+option[name="drop"] {
+    color: white;
+}

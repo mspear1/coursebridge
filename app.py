@@ -6,6 +6,8 @@ app = Flask(__name__)
 # one or the other of these. Defaults to MySQL (PyMySQL)
 # change comment characters to switch to SQLite
 
+# @authors: Ashley, Emily, Louisa, Madelynn
+
 import cs304dbi as dbi
 # import cs304dbi_sqlite3 as dbi
 
@@ -25,17 +27,64 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
-    return render_template('main.html',title='Hello')
+    '''
+    COULD be changed to render the stream page instead
+    '''
+    return render_template('main.html',title='Main Page')
 
-@app.route('/stream/')
+@app.route('/stream/', methods=['GET', 'POST'])
 def stream():
-    return render_template('stream.html',
-                           title='Stream - Coursebridge')
+    '''
+    This handler function gets posts to display for 'get', and for 'post' it 
+    filters the posts first with the indicated filters before returning them
+    '''
+    conn = dbi.connect()
+    if request.method == 'GET':
+        posts = helper.get_posts(conn)     
+    else:
+        type = request.form['type']
+        if type:
+            posts = helper.filter_posts(conn, type)
+        else:
+            posts = helper.get_posts(conn)
 
+    for post in posts:
+            if post['timestamp']:   
+                post['timestamp'] = get_time_difference(post['timestamp'])
+            post['major'] = post['major'].replace('_', ' ')
+            post['tag'] = post['tag'].replace('_', ' ')
+            if post['major2_minor']:
+                post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+            if len(post['description']) > 75: # If the description is too long, cut it off
+                post['description'] = post['description'][:76] + '...'
+        
+    return render_template('stream.html',
+                        title='Stream - Coursebridge', posts = posts)
+
+
+def get_time_difference(timestamp):
+    '''
+    Helper function to convert the timestamp into a time format that is more
+    digestible to users (e.g., Wednesday, 11/15)
+    '''
+    current_time = datetime.now()
+    time_difference = current_time - timestamp
+
+    days = time_difference.days
+    hours, remainder = divmod(time_difference.seconds, 3600)
+    minutes, _ = divmod(remainder, 60)
+
+    if days > 0:
+        return f"{days} {'day' if days == 1 else 'days'} ago"
+    elif hours > 0:
+        return f"{hours} {'hour' if hours == 1 else 'hours'} ago"
+    else:
+        return f"{minutes} {'minute' if minutes == 1 else 'minutes'} ago"
+    
 @app.route('/create/', methods=['GET', 'POST'])
 def create_post():
     '''
-    Method for creating the post; calls helper.add to insert a new post
+    For creating the post; calls helper.add() to insert a new post, get and post
     '''
     # return render_template('create_post.html',
     #                        title='Create Post - Coursebridge')
@@ -47,13 +96,12 @@ def create_post():
 
         # check if the form should parse the stuff or should get as dictionary
         form_info = request.form  # dictionary of form data
-        
+
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
         
         # Things to add:
         # Post needs to refer to session or something to get the actual sid instead of manual input
-        #sid = request.form.get('sid')
-        # helper.add_post(conn, title, description, timestamp, location, tag, professor, course, None)
+        # sid = request.form.get('sid')
         helper.add_post(conn, form_info, timestamp)
 
         flash('Your post is created!')
@@ -69,42 +117,42 @@ def update_post():
 # You will probably not need the routes below, but they are here
 # just in case. Please delete them if you are not using them
 
-@app.route('/greet/', methods=["GET", "POST"])
-def greet():
-    if request.method == 'GET':
-        return render_template('greet.html', title='Customized Greeting')
-    else:
-        try:
-            username = request.form['username'] # throws error if there's trouble
-            flash('form submission successful')
-            return render_template('greet.html',
-                                   title='Welcome '+username,
-                                   name=username)
+# @app.route('/greet/', methods=["GET", "POST"])
+# def greet():
+#     if request.method == 'GET':
+#         return render_template('greet.html', title='Customized Greeting')
+#     else:
+#         try:
+#             username = request.form['username'] # throws error if there's trouble
+#             flash('form submission successful')
+#             return render_template('greet.html',
+#                                    title='Welcome '+username,
+#                                    name=username)
 
-        except Exception as err:
-            flash('form submission error'+str(err))
-            return redirect( url_for('index') )
+#         except Exception as err:
+#             flash('form submission error'+str(err))
+#             return redirect( url_for('index') )
 
-@app.route('/formecho/', methods=['GET','POST'])
-def formecho():
-    if request.method == 'GET':
-        return render_template('form_data.html',
-                               method=request.method,
-                               form_data=request.args)
-    elif request.method == 'POST':
-        return render_template('form_data.html',
-                               method=request.method,
-                               form_data=request.form)
-    else:
-        # maybe PUT?
-        return render_template('form_data.html',
-                               method=request.method,
-                               form_data={})
+# @app.route('/formecho/', methods=['GET','POST'])
+# def formecho():
+#     if request.method == 'GET':
+#         return render_template('form_data.html',
+#                                method=request.method,
+#                                form_data=request.args)
+#     elif request.method == 'POST':
+#         return render_template('form_data.html',
+#                                method=request.method,
+#                                form_data=request.form)
+#     else:
+#         # maybe PUT?
+#         return render_template('form_data.html',
+#                                method=request.method,
+#                                form_data={})
 
-@app.route('/testform/')
-def testform():
-    # these forms go to the formecho route
-    return render_template('testform.html')
+# @app.route('/testform/')
+# def testform():
+#     # these forms go to the formecho route
+#     return render_template('testform.html')
 
 
 if __name__ == '__main__':
