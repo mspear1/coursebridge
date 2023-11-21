@@ -13,6 +13,7 @@ import cs304dbi as dbi
 
 import helper 
 import random
+import bcrypt
 from datetime import datetime
 
 app.secret_key = 'your secret here'
@@ -28,9 +29,16 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/')
 def index():
     '''
-    COULD be changed to render the stream page instead
+    This renders to login page for users to sign in when they load the website 
     '''
-    return render_template('main.html',title='Main Page')
+    return render_template('login.html',title='Login Page')
+
+@app.route('/main/')
+def main():
+    '''
+    This is the welcome page 
+    '''
+    return render_template('main.html',title='Welcome Page')
 
 @app.route('/stream/', methods=['GET', 'POST'])
 def stream():
@@ -114,6 +122,126 @@ def update_post():
     '''
     pass
 
+@app.route('/logout')
+def logout():
+    '''
+    Function that checks the current status and logs out the user
+    if they were logged in. 
+    '''
+    if 'username' in session:
+        username = session['username']
+        session.pop('username')
+        session.pop('id')
+        session.pop('logged_in')
+        flash('You are logged out')
+        return redirect(url_for('index'))
+    else:
+        flash('You are not logged in. Please login or signup')
+        return redirect(url_for('index') )
+
+@app.route('/join/', methods=["POST", "GET"])
+def join():
+    '''
+    Allows new users to sign up for an account with email and password, 
+    encrypted with bycrpt. 
+    '''
+    if request.method == 'GET':
+        return render_template('join.html')
+    username = request.form.get('username')
+    passwd1 = request.form.get('password1')
+    passwd2 = request.form.get('password2')
+    if passwd1 != passwd2:
+        flash('passwords do not match')
+        return redirect( url_for('index'))
+    hashed = bcrypt.hashpw(passwd1.encode('utf-8'),
+                           bcrypt.gensalt())
+    stored = hashed.decode('utf-8')
+    print(passwd1, type(passwd1), hashed, stored)
+    conn = dbi.connect()
+    curs = dbi.cursor(conn)
+    try:
+        curs.execute('''INSERT INTO student(id,email_address,hashed)
+                        VALUES(null,%s,%s)''',
+                     [username, stored])
+        conn.commit()
+    except Exception as err:
+        # flash('That username is taken: {}'.format(repr(err)))
+        flash("An account already exists with this email. Please login :)")
+        return redirect(url_for('index'))
+    curs.execute('select last_insert_id()')
+    row = curs.fetchone()
+    id = row[0]
+    # flash('FYI, you were issued ID {}'.format(id))
+    flash('You successfully created an account with {}'.format(username))
+    session['username'] = username
+    session['id'] = id
+    session['logged_in'] = True
+    session['visits'] = 1
+    return redirect( url_for('user', username=username) )
+
+@app.route('/login/', methods=["POST", "GET"])
+def login():
+    '''
+    Gets the login for for user
+    Logs in the user using a post method 
+    '''
+    # Gets the form for user to login 
+    if request.method == 'GET':
+        return render_template('login.html')
+    # Posts the form once user fills out information 
+    else:
+        username = request.form.get('username')
+        passwd = request.form.get('password')
+        conn = dbi.connect()
+        curs = dbi.dict_cursor(conn)
+        curs.execute('''SELECT id,hashed
+                        FROM student
+                        WHERE email_address = %s''',
+                    [username])
+        row = curs.fetchone()
+        if row is None:
+            # Same response as wrong password,
+            # so no information about what went wrong
+            flash('login incorrect. Try again or join')
+            return redirect( url_for('index'))
+        stored = row['hashed']
+        print('database has stored: {} {}'.format(stored,type(stored)))
+        print('form supplied passwd: {} {}'.format(passwd,type(passwd)))
+        hashed2 = bcrypt.hashpw(passwd.encode('utf-8'),
+                                stored.encode('utf-8'))
+        hashed2_str = hashed2.decode('utf-8')
+        print('rehash is: {} {}'.format(hashed2_str,type(hashed2_str)))
+        if hashed2_str == stored:
+            print('they match!')
+            flash('successfully logged in as '+username)
+            session['username'] = username
+            session['id'] = row['id']
+            session['logged_in'] = True
+            session['visits'] = 1
+            return redirect( url_for('user', username=username) )
+        else:
+            flash('login incorrect. Try again or join')
+            return redirect( url_for('index'))
+
+@app.route('/user/<username>')
+def user(username):
+    """
+    Page that displays user information
+    This is for alpha round -- ignore for now 
+    """
+    try: 
+        username = session['username']
+        if 'username' in session: 
+            username = session['username']
+            id = session['id']
+            session['visits'] = int(session['visits']) + 1
+            return render_template('greet.html', page_title = 'Welcome!')
+    except Exception as err:
+        flash("Error" + str(err))
+        return redirect( url_for('index'))
+
+
+
 # You will probably not need the routes below, but they are here
 # just in case. Please delete them if you are not using them
 
@@ -168,4 +296,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0',port)
+    app.run('0.0.0.0',port=8998)

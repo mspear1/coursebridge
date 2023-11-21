@@ -14,16 +14,20 @@
 <body>
             
 {% block nav %}
+{% if 'logged_in' in session and session['logged_in'] %}
 <nav>
   <ul>
-    <li><a href="{{url_for('index')}}">home</a></li>
+    <li><a href="{{url_for('main')}}">home</a></li>
     <li><a href="{{url_for('stream')}}">Stream</a></li>
     <li><a href="{{url_for('create_post')}}">Create a Post</a></li>
+
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+    <li>Welcome, {{ session['username'] }}!</li>
+
+{% endif %}
   </ul>
 </nav>
 {% endblock %}
-
-<button> logout </button>
 
 {% with messages = get_flashed_messages() %}
 {% if messages %}
