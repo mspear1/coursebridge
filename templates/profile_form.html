@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+
+{% block head_stuff %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+    integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+
+
+{% endblock head_stuff %}
+
+
+{% block header %} <h2>Create User Profile</h2> {% endblock header %}
+
+
+{% block content %}
+
+<!--Name, phone number, major, major2/minor, dorm, profile pic-->
+<form method=post action="{{url_for('create_profile')}}" style="width:500px; margin-top: 5px; margin-left: 50px;" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="name">Name (Required)</label>
+        <input required type="text" class="form-control" name="name" id="name" maxlength="40" placeholder="e.g. Bob Bonn">
+    </div>
+    <div class="form-group">
+        <label for="phonenum">Phone Number (Recommended)</label>
+        <input required type="text" class="form-control" name="phonenum" id="phonenum" maxlength="12" >
+    </div>
+
+    <div class="form-group">
+        <label for="major1">Major</label>
+        <select class="form-control" name="major1" id="major1">
+            <option value="Undecided">Undecided</option>
+            <option value="Africana_Studies">Africana Studies</option>
+            <option value="American_Studies">American Studies</option>
+            <option value="Anthropology">Anthropology</option>
+            <option value="Art">Art</option>
+            <option value="Astronomy">Astronomy</option>
+            <option value="Biological_Sciences">Biological Sciences</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Classical_Civilization">Classical Civilization</option>
+            <option value="Classical_Studies">Classical Studies</option>
+            <option value="Cognitive_and_Linguistic_Science">Cognitive and Linguistic Science</option>
+            <option value="Computer_Science">Computer Science</option>
+            <option value="East_Asian_Languages_and_Cultures">East Asian Languages and Cultures</option>
+            <option value="Economics">Economics</option>
+            <option value="Education">Education</option>
+            <option value="English_and_Creative_Writing">English and Creative Writing</option>
+            <option value="Environmental_Studies">Environmental Studies</option>
+            <option value="French_and_Francophone_Studies">French and Francophone Studies</option>
+            <option value="Geosciences">Geosciences</option>
+            <option value="German_Studies">German Studies</option>
+            <option value="History">History</option>
+            <option value="Italian_Studies">Italian Studies</option>
+            <option value="Language_Studies_Linguistics">Language Studies Linguistics</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Music">Music</option>
+            <option value="Neuroscience">Neuroscience</option>
+            <option value="Philosophy">Philosophy</option>
+            <option value="Physics">Physics</option>
+            <option value="Political_Science">Political Science</option>
+            <option value="Psychology">Psychology</option>
+            <option value="Religion">Religion</option>
+            <option value="Russian">Russian</option>
+            <option value="Sociology">Sociology</option>
+            <option value="Spanish_and_Portuguese">Spanish and Portuguese</option>
+            <option value="Womens_and_Gender_Studies">Women's and Gender Studies</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="major2_minor">Major2 or Minor</label>
+        <select class="form-control" name="major2_minor" id="major2_minor">
+            <option value="Undecided">Undecided</option>
+            <option value="Africana_Studies">Africana Studies</option>
+            <option value="American_Studies">American Studies</option>
+            <option value="Anthropology">Anthropology</option>
+            <option value="Art">Art</option>
+            <option value="Astronomy">Astronomy</option>
+            <option value="Biological_Sciences">Biological Sciences</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Classical_Civilization">Classical Civilization</option>
+            <option value="Classical_Studies">Classical Studies</option>
+            <option value="Cognitive_and_Linguistic_Science">Cognitive and Linguistic Science</option>
+            <option value="Computer_Science">Computer Science</option>
+            <option value="East_Asian_Languages_and_Cultures">East Asian Languages and Cultures</option>
+            <option value="Economics">Economics</option>
+            <option value="Education">Education</option>
+            <option value="English_and_Creative_Writing">English and Creative Writing</option>
+            <option value="Environmental_Studies">Environmental Studies</option>
+            <option value="French_and_Francophone_Studies">French and Francophone Studies</option>
+            <option value="Geosciences">Geosciences</option>
+            <option value="German_Studies">German Studies</option>
+            <option value="History">History</option>
+            <option value="Italian_Studies">Italian Studies</option>
+            <option value="Language_Studies_Linguistics">Language Studies Linguistics</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Music">Music</option>
+            <option value="Neuroscience">Neuroscience</option>
+            <option value="Philosophy">Philosophy</option>
+            <option value="Physics">Physics</option>
+            <option value="Political_Science">Political Science</option>
+            <option value="Psychology">Psychology</option>
+            <option value="Religion">Religion</option>
+            <option value="Russian">Russian</option>
+            <option value="Sociology">Sociology</option>
+            <option value="Spanish_and_Portuguese">Spanish and Portuguese</option>
+            <option value="Womens_and_Gender_Studies">Women's and Gender Studies</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="dorm">Dorm</label>
+        <input required type="text" class="form-control" name="dorm" id="dorm" maxlength="20" placeholder="e.g. Tower">
+    </div>
+
+    <label for="file">Upload Profile Picture:</label>
+    <input type="file" name="pic" id="file"> <!-- Define accepted file types if needed -->
+    <br>
+
+    <!-- {% if nm != '' and src != '' %}
+    <p>Last upload: {{nm}}</p>
+    <p> <img src="{{src}}"></p>
+    {% endif %} -->
+    <button type="submit" class="btn btn-primary" value="Create Profile" style="display: block">Create Profile</button>
+
+</form>
+<!-- <form method="post" action="" enctype="multipart/form-data">
+    <p><label>NM: <input type="text" name="nm"></label></p>
+    <p><label>Pic: <input type="file" name="pic"></label></p>
+    <p><input type="submit" value="upload"></p>
+</form> -->
+
+{% endblock %}
+
+
+{% block end_scripts %}
+
+{% endblock %}

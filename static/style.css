@@ -6,7 +6,9 @@ HTML {
     /* color for H1-H6 and others. was deepskyblue but poor contrast. */
     --color-hilite: #b50000;
     /* was red, but this avoids WAVE contrast errors */
-    --color-focus: #56B929;
+    /* --color-focus: #56B929; */
+    --color-focus: #57dbec;
+
     --font-family: Verdana;
     font-family: var(--font-family)
 }
@@ -31,47 +33,37 @@ h3 {
 
 
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
-nav>ul {
-    display: flex;
-    flex-direction: row;
-}
-
 nav ul {
-    list-style-type: none;
-    margin: 0px;
-    padding: 0px;
-}
-
-nav>ul>li {
-    flex: 0 0 auto;
-    width: 15em;
-}
-
-nav button,
-nav a {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: #03115b; /* Set your desired background color */
+  }
+  
+  nav li {
+    display: inline-block;
+    color: white;
+    font-family: Verdana;
+  }
+  
+  nav a {
     display: block;
-    box-sizing: border-box;
-    /* easier to make button and A the same size */
-    width: 100%;
-    height: 40px;
-    padding: 0px;
-    padding-bottom: 5px;
-    background-color: var(--color-header);
-    /* was #3498db */
-    border: 2px solid black;
-    border-radius: 5px;
-    cursor: pointer;
-    /* Firefox uses font -apple-system unless I repeat the font spec here. */
-    font-family: var(--font-family);
-    font-weight: bold;
-    font-size: 1.4rem;
-}
-
-/* Only the top-level buttons are centered; lower ones are left-aligned. */
-nav>ul>li>button,
-nav>ul>li>a {
-    text-align: center;
-}
+    padding: 15px 20px; /* Adjust the padding as needed */
+    text-decoration: none;
+    color: white; /* Set your desired text color */
+    font-family: Verdana;
+  }
+  
+  /* Style the logout link differently */
+  nav li:nth-last-child(2) a {
+    font-size: 14px; /* Set a smaller font size for the logout link */
+  }
+  
+  /* Add hover effect */
+  nav a:hover {
+    background-color: #555; /* Set your desired hover background color */
+  }
+  
 
 /* because of the margin trick, this can only be used for the last element */
 
@@ -86,6 +78,10 @@ nav a:focus {
     background-color: var(--color-focus);
 }
 
+.message {
+    float: right;
+    margin: 20px;
+}
 
 input[type="text"],
 textarea,
@@ -210,7 +206,7 @@ nav {
 
 .filter {
     padding: 5px;
-    width: 350px;
+    width: 550px;
     border: 2px solid rgb(46, 4, 88);
     border-radius: 5px;
 }
@@ -218,3 +214,18 @@ nav {
 option[name="drop"] {
     color: white;
 }
+
+.dropdown-menu [name="datedrop"] {
+    height:30px; 
+    margin-bottom:5px; 
+    align-items:center;
+}
+
+.logout {
+    font-size: 10px;
+}
+
+button[type="submit"] {
+    background-color: darkblue;
+}
+
