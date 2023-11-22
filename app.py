@@ -16,6 +16,12 @@ import random
 import bcrypt
 from datetime import datetime
 
+import sys, os, random
+import imghdr
+
+app.config['UPLOADS'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024 # 2 MB
+
 app.secret_key = 'your secret here'
 # replace that with a random key
 app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
@@ -40,6 +46,7 @@ def main():
     '''
     return render_template('main.html',title='Welcome Page')
 
+
 @app.route('/stream/', methods=['GET', 'POST'])
 def stream():
     '''
@@ -55,16 +62,25 @@ def stream():
             posts = helper.filter_posts(conn, type)
         else:
             posts = helper.get_posts(conn)
+        
+        date_order = request.form['dateorder']
 
+        # sort posts by date order
+        if date_order == 'early':
+            posts = sorted(posts, key=lambda x:x['date'])
+        elif date_order == 'late':
+            posts = sorted(posts, key=lambda x:x['date'], reverse=True)
+
+    # reformatting for display purposes and slicing for database purposes
     for post in posts:
-            if post['timestamp']:   
-                post['timestamp'] = get_time_difference(post['timestamp'])
-            post['major'] = post['major'].replace('_', ' ')
-            post['tag'] = post['tag'].replace('_', ' ')
-            if post['major2_minor']:
-                post['major2_minor'] = post['major2_minor'].replace('_', ' ')
-            if len(post['description']) > 75: # If the description is too long, cut it off
-                post['description'] = post['description'][:76] + '...'
+        if post['timestamp']:   
+            post['timestamp'] = get_time_difference(post['timestamp'])
+        post['major'] = post['major'].replace('_', ' ')
+        post['tag'] = post['tag'].replace('_', ' ')
+        if post['major2_minor']:
+            post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+        if len(post['description']) > 75: # If the description is too long, cut it short
+            post['description'] = post['description'][:76] + '...'
         
     return render_template('stream.html',
                         title='Stream - Coursebridge', posts = posts)
@@ -94,8 +110,6 @@ def create_post():
     '''
     For creating the post; calls helper.add() to insert a new post, get and post
     '''
-    # return render_template('create_post.html',
-    #                        title='Create Post - Coursebridge')
 
     if request.method == 'GET':
         return render_template('create_post.html', title='Create Post - Coursebridge')
@@ -106,14 +120,64 @@ def create_post():
         form_info = request.form  # dictionary of form data
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-        
-        # Things to add:
-        # Post needs to refer to session or something to get the actual sid instead of manual input
-        # sid = request.form.get('sid')
-        helper.add_post(conn, form_info, timestamp)
+        id = session['id']
+        # To get name to display
+        name = helper.get_name(conn, id)
+        session['name'] = name   
+
+        helper.add_post(conn, form_info, timestamp, id)
 
         flash('Your post is created!')
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
+
+@app.route('/createprofile/', methods=["GET", "POST"])
+def create_profile():
+    if request.method == 'GET':
+        return render_template('profile_form.html', title="Create Profile")
+    else:
+        try:
+            id = int(session['id'])
+            f = request.files['pic']
+            user_filename = f.filename
+            ext = user_filename.split('.')[-1]
+            filename = secure_filename('{}.{}'.format(id,ext))
+            pathname = os.path.join(app.config['UPLOADS'],filename)
+            f.save(pathname)
+            conn = dbi.connect()
+
+            name = request.form['name']
+            phnumber = request.form['phonenum']
+            major1 = request.form['major1']
+            major2_minor = request.form['major2_minor']
+            dorm = request.form['dorm']
+
+            # upload file if it exists
+            if f: 
+                helper.upload_profile_pic(conn, id, filename)
+
+            helper.add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
+            flash('Profile Created!')
+          
+            return redirect(url_for('stream'))
+        except Exception as err:
+            flash('Upload failed {why}'.format(why=err))
+            return render_template('profile_form.html',src='',nm='')
+        
+      
+
+# Will likely use a variant of this function for alpha
+# @app.route('/pic/<nm>')
+# def pic(nm):
+#     conn = dbi.connect()
+#     curs = dbi.dict_cursor(conn)
+#     numrows = curs.execute(
+#         '''select filename from picfile where nm = %s''',
+#         [nm])
+#     if numrows == 0:
+#         flash('No picture for {}'.format(nm))
+#         return redirect(url_for('index'))
+#     row = curs.fetchone()
+#     return send_from_directory(app.config['UPLOADS'],row['filename'])
 
 @app.route('/update/')
 def update_post():
@@ -162,7 +226,7 @@ def join():
     try:
         curs.execute('''INSERT INTO student(id,email_address,hashed)
                         VALUES(null,%s,%s)''',
-                     [username, stored])
+                        [username, stored])
         conn.commit()
     except Exception as err:
         # flash('That username is taken: {}'.format(repr(err)))
@@ -177,7 +241,8 @@ def join():
     session['id'] = id
     session['logged_in'] = True
     session['visits'] = 1
-    return redirect( url_for('user', username=username) )
+    # return redirect( url_for('user', username=username) )
+    return redirect( url_for('create_profile') )  # redirect to creating profile after joining
 
 @app.route('/login/', methods=["POST", "GET"])
 def login():
@@ -213,12 +278,17 @@ def login():
         print('rehash is: {} {}'.format(hashed2_str,type(hashed2_str)))
         if hashed2_str == stored:
             print('they match!')
-            flash('successfully logged in as '+username)
+            flash('successfully logged in with '+username)
             session['username'] = username
             session['id'] = row['id']
             session['logged_in'] = True
             session['visits'] = 1
-            return redirect( url_for('user', username=username) )
+
+            # To get name to display
+            name = helper.get_name(conn, row['id'])
+            session['name'] = name
+            # return redirect( url_for('user', username=username) )
+            return redirect( url_for('stream') )
         else:
             flash('login incorrect. Try again or join')
             return redirect( url_for('index'))
@@ -261,26 +331,6 @@ def user(username):
 #             flash('form submission error'+str(err))
 #             return redirect( url_for('index') )
 
-# @app.route('/formecho/', methods=['GET','POST'])
-# def formecho():
-#     if request.method == 'GET':
-#         return render_template('form_data.html',
-#                                method=request.method,
-#                                form_data=request.args)
-#     elif request.method == 'POST':
-#         return render_template('form_data.html',
-#                                method=request.method,
-#                                form_data=request.form)
-#     else:
-#         # maybe PUT?
-#         return render_template('form_data.html',
-#                                method=request.method,
-#                                form_data={})
-
-# @app.route('/testform/')
-# def testform():
-#     # these forms go to the formecho route
-#     return render_template('testform.html')
 
 
 if __name__ == '__main__':

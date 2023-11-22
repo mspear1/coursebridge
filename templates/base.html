@@ -14,17 +14,28 @@
 <body>
             
 {% block nav %}
-{% if 'logged_in' in session and session['logged_in'] %}
 <nav>
   <ul>
-    <li><a href="{{url_for('main')}}">home</a></li>
+    {% if 'logged_in' in session and session['logged_in'] %}
+
+    <li><a href="{{url_for('main')}}">Home</a></li>
     <li><a href="{{url_for('stream')}}">Stream</a></li>
     <li><a href="{{url_for('create_post')}}">Create a Post</a></li>
 
-    <li><a href="{{ url_for('logout') }}">Logout</a></li>
-    <li>Welcome, {{ session['username'] }}!</li>
+    <li><a href="{{ url_for('logout') }}" class="logout">Logout</a></li>
+    {% if session['name'] %}
+    <li class="message">Welcome, {{ session['name'] }}!</li>
+    {% else %}
+    <li class="message">Welcome, {{ session['username'] }}!</li>
+    {% endif %}
 
-{% endif %}
+    <!-- <li><a href="{{url_for('create_profile')}}">Create Profile</a></li> -->
+
+    {% else %}
+    <li><a href="{{url_for('login')}}">Login</a></li>
+    <li class="message">You are not logged in</li>
+    {% endif %}
+
   </ul>
 </nav>
 {% endblock %}
