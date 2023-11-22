@@ -202,7 +202,7 @@ def login():
         if row is None:
             # Same response as wrong password,
             # so no information about what went wrong
-            flash('login incorrect. Try again or join')
+            flash('Login incorrect. Try again or join')
             return redirect( url_for('index'))
         stored = row['hashed']
         print('database has stored: {} {}'.format(stored,type(stored)))
@@ -296,4 +296,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0',port=8998)
+    app.run('0.0.0.0',port)
