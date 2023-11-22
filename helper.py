@@ -100,4 +100,4 @@ def get_name(conn, id):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select name from student where id = %s''', [id])
-    curs.fetchone()
+    return curs.fetchone()

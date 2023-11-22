@@ -120,14 +120,21 @@ def create_post():
         form_info = request.form  # dictionary of form data
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-        id = session['id']
-        # To get name to display
-        name = helper.get_name(conn, id)
-        session['name'] = name   
 
-        helper.add_post(conn, form_info, timestamp, id)
+        # Handling the case where the session expires while the user
+        # is in the midst of creating a post
+        if 'id' in session:
+            id = session['id']
 
-        flash('Your post is created!')
+            # To get name to display
+            name = helper.get_name(conn, id)['name']
+            session['name'] = name   
+            helper.add_post(conn, form_info, timestamp, id)
+            flash('Your post is created!')
+        else:
+            flash('Sorry, your session has expired. Please login again.')
+            redirect(url_for('login'))
+        
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
 
 @app.route('/createprofile/', methods=["GET", "POST"])
@@ -151,14 +158,25 @@ def create_profile():
             major2_minor = request.form['major2_minor']
             dorm = request.form['dorm']
 
-            # upload file if it exists
-            if f: 
-                helper.upload_profile_pic(conn, id, filename)
+            # To get name to display on nav bar
+            name = helper.get_name(conn, id)['name']
+            session['name'] = name 
 
-            helper.add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
-            flash('Profile Created!')
-          
-            return redirect(url_for('stream'))
+            # Handling the case where the session expires while the user
+            # is in the midst of creating a profile
+            if 'id' in session:
+                # upload file if it exists
+                if f: 
+                    helper.upload_profile_pic(conn, id, filename)
+
+                helper.add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
+                flash('Profile Created!')
+            else:
+                flash('Sorry, your session has expired. Please login again.')
+                redirect(url_for('login'))
+
+            # Bring first-time users to the welcome/main page
+            return redirect(url_for('main'))
         except Exception as err:
             flash('Upload failed {why}'.format(why=err))
             return render_template('profile_form.html',src='',nm='')
@@ -283,9 +301,9 @@ def login():
             session['id'] = row['id']
             session['logged_in'] = True
             session['visits'] = 1
-
+           
             # To get name to display
-            name = helper.get_name(conn, row['id'])
+            name = helper.get_name(conn, row['id'])['name']
             session['name'] = name
             # return redirect( url_for('user', username=username) )
             return redirect( url_for('stream') )
