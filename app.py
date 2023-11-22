@@ -15,12 +15,18 @@ import helper
 import random
 import bcrypt
 from datetime import datetime
+from datetime import timedelta
+
 
 import sys, os, random
 import imghdr
 
 app.config['UPLOADS'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024 # 2 MB
+
+# To increase session time 
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+
 
 app.secret_key = 'your secret here'
 # replace that with a random key
