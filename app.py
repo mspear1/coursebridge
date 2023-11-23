@@ -207,7 +207,7 @@ def create_profile():
 @app.route('/display/<pid>')
 def display_post(pid):
     '''
-    Method for displaying the a singular full post
+    Method for displaying a singular full post
     '''
     conn = dbi.connect()
     post = helper.get_postinfo(conn, pid)
