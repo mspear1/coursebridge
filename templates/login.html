@@ -2,27 +2,20 @@
 
 <!-- login.html -->
 
-<!--<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-</head>-->
 {% block content %}
 <body>
 
     <h1>Login</h1>
-    <a href = "{{url_for('join')}}"> New user? Join here </a>
-
 
     <form id="Login" action="{{ url_for('login') }}" method="post">
         <label for="username">Email Address:</label>
-        <input type="text" id="username" name="username" required>
+        <input type="text" class="login" id="username" name="username" required>
         <br>
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+        <input type="text" class="login" id="password" name="password" required>
         <br>
-        <input type="submit" value="Login">
+        <input type="submit" class="login" value="Login">
+        <a href = "{{url_for('join')}}"> New user? Join here </a>
     </form>
 
     {% if messages %}
