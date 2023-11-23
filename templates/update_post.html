@@ -26,47 +26,48 @@
 {% endblock head_stuff %}
 
 
-{% block header %} <h2>Update Form</h2> {% endblock header %}
+{% block header %} <h2>Update Post</h2> {% endblock header %}
 
 
 {% block content %}
 
 <!--Description, tag, location, date, professor (if discuss hw), class (if discuss hw), oncampus-->
 <form method=post action="{{url_for('update_post', pid=pid)}}" style="width:500px; margin-top: 5px; margin-left: 50px;">
-    <p>{{post}}</p>
     <div class="form-group">
         <label for="title">Title (required)</label>
-        <input required type="text" class="form-control" name="title" maxlength="30" placeholder="Title" value="{{post.title}}">
+        <input required type="text" class="form-control" name="title" id="title" maxlength="30" placeholder="Title" value="{{post.title}}">
     </div>
     <div class="form-group">
         <label for="description">Description (required)</label>
-        <!-- <input required type="text" class="form-control" name="description" maxlength="500" placeholder="Description"> -->
-        <textarea required id="description" name="description" placeholder="Title" rows=3 cols=60 maxlength="500">{{post.description}}</textarea><br>
+        <textarea required type="text" name="description" id="description" rows=3 cols=60 maxlength="500">{{post.description}}</textarea><br>
     </div>
     <div class="form-group">
-        <label for="description">Location</label>
-        <input type="text" class="form-control" name="location" maxlength="50" placeholder="Location" value="{{post.location}}">
+        <label for="location">Location</label>
+        <input type="text" class="form-control" name="location" id="location" maxlength="50" placeholder="Location" value="{{post.location}}">
     </div>
 
-    <label>On-campus: </label>
-        <div class="form-check form-check-inline">
-            <input required class="form-check-input" type="radio" name="oncampus" id="tagSelect" value="yes" {% if post.on_campus=='yes' %} checked="checked"{% endif %}>
-            <label class="form-check-label" id="tag" style="display: inline">
-                Yes
-            </label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input required class="form-check-input" type="radio" name="oncampus" id="tagSelect" value="no" {% if post.on_campus=='no' %} checked="checked"{% endif %}>
-            <label class="form-check-label" id="tag" style="display: inline">
-                No
-            </label>
-        </div>
+    <fieldset>
+    <legend style="font-size: 16px;">On-campus</legend>
+    <div class="form-check form-check-inline">
+        <label class="form-check-label" style="display: inline">
+            <input required class="form-check-input" type="radio" name="oncampus" value="yes" {% if post.on_campus=='yes' %} checked="checked"{% endif %}>
+            Yes
+        </label>
+    </div>
+    <div class="form-check form-check-inline">
+        <label class="form-check-label" id="tag" style="display: inline">
+            <input required class="form-check-input" type="radio" name="oncampus" value="no" {% if post.on_campus=='no' %} checked="checked"{% endif %}>
+            No
+        </label>
+    </div>
+</fieldset>
     <br></br>
 
     <!-- not sure how to put a placeholder for this -->
-    <label for="datepicker">Tentative Meeting Date:</label>
+
+    <label for="date">Tentative Meeting Date:</label>
     <div class="input-group date" id="datepicker" data-date-format="mm-dd-yyyy">
-        <input type="text" class="form-control" name="date">
+        <input type="text" class="form-control" name="date" id="date" value = "{{ post.date }}">
         <span class="input-group-append">
             <span class="input-group-text bg-white">
                 <i class="fa fa-calendar"></i>
@@ -77,20 +78,20 @@
     <fieldset>
         <legend style="font-size: 16px;">Tag (required)</legend>
         <div class="form-check form-check-inline">
-            <input required class="form-check-input" type="radio" name="tag" id="tagSelect" value="discuss_hw" {% if post.tag=='discuss_hw' %} checked="checked"{% endif %}>
             <label class="form-check-label" id="tag" style="display: inline">
+                <input required class="form-check-input" type="radio" name="tag" value="discuss_hw" {% if post.tag=='discuss_hw' %} checked="checked"{% endif %}>
                 Discuss HW
             </label>
         </div>
         <div class="form-check form-check-inline">
-            <input required class="form-check-input" type="radio" name="tag" id="tagSelect" value="social" {% if post.tag=='social' %} checked="checked"{% endif %}>
             <label class="form-check-label" id="tag" style="display: inline">
+                <input required class="form-check-input" type="radio" name="tag" value="social" {% if post.tag=='social' %} checked="checked"{% endif %}>
                 Socialize
             </label>
         </div>
         <div class="form-check form-check-inline">
-            <input required class="form-check-input" type="radio" name="tag" id="tagSelect" value="study_session" {% if post.tag=='study_session' %} checked="checked"{% endif %}>
             <label class="form-check-label" id="tag" style="display: inline">
+                <input required class="form-check-input" type="radio" name="tag" value="study_session" {% if post.tag=='study_session' %} checked="checked"{% endif %}>
                 Study Session
             </label>
         </div>
@@ -99,17 +100,19 @@
 
 
     <!--Only appears if 'Discuss HW is selected'-->
-    <div class="form-group d-none" id="professorName" name="class-specific">
+    <div class="form-group {% if not post.professor %} d-none {% endif %}" id="professorName" name="class-specific">
         <label for="professor">Professor Name</label>
-        <input type="text" class="form-control" name="professor" maxlength="50" placeholder="Name">
+        <input type="text" class="form-control" name="professor" id="professor" maxlength="50" placeholder="Name" value="{{post.professor}}">
     </div>
 
-    <div class="form-group d-none" id="courseName" name="class-specific">
+    <div class="form-group {% if not post.class %} d-none {% endif %}" id="courseName" name="class-specific">
         <label for="courseName">Course Name</label>
-        <input type="text" class="form-control" name="class" maxlength="8" placeholder="e.g., CS 304">
+        <input type="text" class="form-control" name="class" id="class" maxlength="8" placeholder="e.g., CS 304" value="{{post.class}}">
     </div>
 
-    <button type="submit" class="btn btn-primary" value="Update Post" style="display: block">Update Post</button>
+    <button type="submit" name="submit" class="btn btn-primary" value="update" >Update Post</button>
+    <button type="submit" name="submit" class="btn btn-primary" value="delete" >Delete</button>
+
 
 
 </form>
@@ -125,13 +128,13 @@
 <!--Move to JS document later-->
 <script>
     $(function () {
-        var currentDate = new Date();
+        // Not currently working as planned for update_post - will hopefully fix for alpha
         $("#datepicker").datepicker({
             autoclose: true,
             todayHighlight: true,
             uiLibrary: 'bootstrap4',
             startDate: currentDate  // to ensure that user cannot select past dates
-        }).datepicker('update', new Date());
+        }).datepicker('update');
     });
 
 

@@ -39,8 +39,7 @@
     </div>
     <div class="form-group">
         <label for="description">Description (required)</label>
-        <!-- <input required type="text" class="form-control" name="description" maxlength="500" placeholder="Description"> -->
-        <textarea required id="description" name="description" id="description" rows=3 cols=60
+        <textarea required type="text" name="description" id="description" rows=3 cols=60
             maxlength="500"></textarea><br>
     </div>
     <div class="form-group">
@@ -48,7 +47,8 @@
         <input type="text" class="form-control" name="location" id="location" maxlength="50" placeholder="Location">
     </div>
 
-    <label for="oncampus">On-campus: </label>
+    <fieldset>
+    <legend style="font-size: 16px;">On-campus</legend>
     <div class="form-check form-check-inline">
         <label class="form-check-label" style="display: inline">
             <input required class="form-check-input" type="radio" name="oncampus" value="yes">
@@ -62,6 +62,7 @@
         </label>
     </div>
     <br></br>
+</fieldset>
 
     <label for="date">Tentative Meeting Date:</label>
     <div class="input-group date" id="datepicker" data-date-format="mm-dd-yyyy">

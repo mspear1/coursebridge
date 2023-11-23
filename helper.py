@@ -41,7 +41,7 @@ def add_post(conn, form, time, sid):
                     professor, course, date, 'open', sid]) 
     conn.commit()
 
-def update_post(conn, form, time, sid):
+def update_post(conn, form, time, pid):
     ''' Updates a post in the database and commits
     ''' 
     title = form['title']
@@ -63,25 +63,33 @@ def update_post(conn, form, time, sid):
         course = None
     date = form.get('date')  
     date = datetime.strptime(date, '%m-%d-%Y') # re-format the date so sql will accept it
-    # timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S') if date else None
     curs = dbi.dict_cursor(conn)
+    
+    # Don't update timestamp for now, may change for alpha
+    curs.execute('''update post set title = %s, description = %s, location = %s, 
+                    on_campus = %s, tag = %s, professor = %s, class = %s, 
+                    date = %s, status = %s where pid = %s''', 
+                    [title, description, location, oncampus, tag, 
+                    professor, course, date, 'open', pid]) 
+    conn.commit()
 
-    curs.execute('''update post(title, description, timestamp, location, 
-                 on_campus, tag, professor, class, date, status, sid)
-                 values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);''', 
-                 [title, description, time, location, oncampus, tag, 
-                  professor, course, date, 'open', sid]) 
+def delete_post(conn, pid):
+    '''
+    Deletes post from the database and commit
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''delete from post where pid = %s''', [pid])
     conn.commit()
 
 
-
-def get_postinfo(conn, sid):
+def get_postinfo(conn, pid):
+    '''
+    Retrieve the post information given the pid
+    '''
     curs = dbi.dict_cursor(conn)
-    curs.execute('''select * from post where sid=%s''', [sid])
+    curs.execute('''select * from post where pid = %s''', [pid])
     result = curs.fetchone()
     return result
-
-
     
 def get_posts(conn):
     '''
@@ -89,8 +97,8 @@ def get_posts(conn):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select student.name as studentname, student.major1 as major, 
-                    student.major2_minor as major2_minor, title, description, timestamp, 
-                    location, on_campus, tag, professor, class, date, status
+                    student.major2_minor as major2_minor, student.id as id, title, description, 
+                    timestamp, location, on_campus, tag, professor, class, date, status, pid
                     from post, student 
                     where post.sid is not NULL and post.sid = student.id;''')
     return curs.fetchall()

@@ -203,7 +203,7 @@ def create_profile():
 #     row = curs.fetchone()
 #     return send_from_directory(app.config['UPLOADS'],row['filename'])
 
-@app.route('/update/<pid>')
+@app.route('/update/<pid>', methods=["GET", "POST"])
 def update_post(pid):
     '''
     Method for updating the post
@@ -211,33 +211,37 @@ def update_post(pid):
     conn = dbi.connect()
     if request.method == 'GET':
         post = helper.get_postinfo(conn, pid)
+        post['date'] = post['date'].strftime("%m-%d-%Y") # To prefill accurately
 
-        return render_template('update_post.html', title='Update Post - Coursebridge', post=post)
+        return render_template('update_post.html', title='Update Post - Coursebridge', post=post, pid=pid)
     else:
         conn = dbi.connect()
+        action = request.form.get('submit')
+        if action == 'update':
+            # check if the form should parse the stuff or should get as dictionary
+            form_info = request.form  # dictionary of form data
+            
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+            
+            # Handling the case where the session expires while the user
+            # is in the midst of creating a post
+            id = 0
+            if 'id' in session:
+                id = session['id']
 
-        # check if the form should parse the stuff or should get as dictionary
-        form_info = request.form  # dictionary of form data
-        
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-        
-        # Handling the case where the session expires while the user
-        # is in the midst of creating a post
-        if 'id' in session:
-            id = session['id']
+                # To get name to display
+                name = helper.get_name(conn, id)['name']
+                session['name'] = name   
+            else:
+                flash('Sorry, your session has expired. Please login again.')
+                redirect(url_for('login'))
+            
+            helper.update_post(conn, form_info, timestamp, pid)
 
-            # To get name to display
-            name = helper.get_name(conn, id)['name']
-            session['name'] = name   
-            helper.add_post(conn, form_info, timestamp, id)
-            flash('Your post is created!')
+            flash('Your post is updated!')
         else:
-            flash('Sorry, your session has expired. Please login again.')
-            redirect(url_for('login'))
-
-        helper.update_post(conn, form_info, timestamp, pid)
-
-        flash('Your post is updated!')
+            helper.delete_post(conn, pid)
+            flash('Post was deleted successfully')
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
 
 @app.route('/logout')
