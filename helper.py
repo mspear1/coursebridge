@@ -40,6 +40,48 @@ def add_post(conn, form, time, sid):
                     [title, description, time, location, oncampus, tag, 
                     professor, course, date, 'open', sid]) 
     conn.commit()
+
+def update_post(conn, form, time, sid):
+    ''' Updates a post in the database and commits
+    ''' 
+    title = form['title']
+    if len(title) > 30:
+        title = title[:31]
+    description = form['description']
+    if len(description) > 500:
+        description = description[:501]
+    location = form['location']
+    oncampus = form['oncampus']
+    if len(location) > 50:
+        location = location[:51]
+    tag = form['tag']
+    professor = form.get('professor', None) # default is None
+    if len(professor) > 50:
+        professor = professor[:51]
+    course = form.get('class', None)
+    if len(course) > 8:
+        course = None
+    date = form.get('date')  
+    date = datetime.strptime(date, '%m-%d-%Y') # re-format the date so sql will accept it
+    # timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S') if date else None
+    curs = dbi.dict_cursor(conn)
+
+    curs.execute('''update post(title, description, timestamp, location, 
+                 on_campus, tag, professor, class, date, status, sid)
+                 values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);''', 
+                 [title, description, time, location, oncampus, tag, 
+                  professor, course, date, 'open', sid]) 
+    conn.commit()
+
+
+
+def get_postinfo(conn, sid):
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select * from post where sid=%s''', [sid])
+    result = curs.fetchone()
+    return result
+
+
     
 def get_posts(conn):
     '''

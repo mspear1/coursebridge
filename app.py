@@ -203,12 +203,42 @@ def create_profile():
 #     row = curs.fetchone()
 #     return send_from_directory(app.config['UPLOADS'],row['filename'])
 
-@app.route('/update/')
-def update_post():
+@app.route('/update/<pid>')
+def update_post(pid):
     '''
     Method for updating the post
     '''
-    pass
+    conn = dbi.connect()
+    if request.method == 'GET':
+        post = helper.get_postinfo(conn, pid)
+
+        return render_template('update_post.html', title='Update Post - Coursebridge', post=post)
+    else:
+        conn = dbi.connect()
+
+        # check if the form should parse the stuff or should get as dictionary
+        form_info = request.form  # dictionary of form data
+        
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        
+        # Handling the case where the session expires while the user
+        # is in the midst of creating a post
+        if 'id' in session:
+            id = session['id']
+
+            # To get name to display
+            name = helper.get_name(conn, id)['name']
+            session['name'] = name   
+            helper.add_post(conn, form_info, timestamp, id)
+            flash('Your post is created!')
+        else:
+            flash('Sorry, your session has expired. Please login again.')
+            redirect(url_for('login'))
+
+        helper.update_post(conn, form_info, timestamp, pid)
+
+        flash('Your post is updated!')
+        return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
 
 @app.route('/logout')
 def logout():
