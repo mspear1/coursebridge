@@ -81,7 +81,8 @@ def stream():
     for post in posts:
         if post['timestamp']:   
             post['timestamp'] = get_time_difference(post['timestamp'])
-        post['major'] = post['major'].replace('_', ' ')
+        if post['major']:
+            post['major'] = post['major'].replace('_', ' ')
         post['tag'] = post['tag'].replace('_', ' ')
         if post['major2_minor']:
             post['major2_minor'] = post['major2_minor'].replace('_', ' ')
@@ -89,7 +90,7 @@ def stream():
             post['description'] = post['description'][:76] + '...'
         
     return render_template('stream.html',
-                        title='Stream - Coursebridge', posts = posts)
+                            title='Stream - Coursebridge', posts = posts)
 
 
 def get_time_difference(timestamp):
@@ -203,10 +204,30 @@ def create_profile():
 #     row = curs.fetchone()
 #     return send_from_directory(app.config['UPLOADS'],row['filename'])
 
+@app.route('/display/<pid>')
+def display_post(pid):
+    '''
+    Method for displaying the a singular full post
+    '''
+    conn = dbi.connect()
+    post = helper.get_postinfo(conn, pid)
+
+    # reformatting data for display purposes
+    if post['timestamp']:   
+            post['timestamp'] = get_time_difference(post['timestamp'])
+    if post['major']:
+        post['major'] = post['major'].replace('_', ' ')
+    post['tag'] = post['tag'].replace('_', ' ')
+    if post['major2_minor']:
+        post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+
+    return render_template('display_post.html', title='Display Post - Coursebridge', post=post, pid=pid)
+
+
 @app.route('/update/<pid>', methods=["GET", "POST"])
 def update_post(pid):
     '''
-    Method for updating the post
+    Method for getting the update post page and also updating the post
     '''
     conn = dbi.connect()
     if request.method == 'GET':
@@ -269,6 +290,8 @@ def join():
     '''
     if request.method == 'GET':
         return render_template('join.html')
+    
+    # For form post from join
     username = request.form.get('username')
     passwd1 = request.form.get('password1')
     passwd2 = request.form.get('password2')
@@ -311,6 +334,7 @@ def login():
     # Gets the form for user to login 
     if request.method == 'GET':
         return render_template('login.html')
+    
     # Posts the form once user fills out information 
     else:
         username = request.form.get('username')

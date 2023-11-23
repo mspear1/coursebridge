@@ -60,6 +60,7 @@
       {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
         style="margin-right:12px;">{{post.major2_minor}}</span>{% endif %}
       {% if post.id == session['id'] %}<span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Post</a></span>{% endif %}
+      <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
 
     </div>
 
@@ -87,10 +88,6 @@
 
 </div>
 
-
-{% endblock %}
-
-{% block end_scripts %}
 <style>
   select {
     padding: 5px;
@@ -98,21 +95,25 @@
     height: 150px;
     overflow-y: auto;
     background-color: #f1f1f1;
-    /* Light gray background color */
     border: 1px solid #ccc;
     /* Border color */
     border-radius: 4px;
-    /* Optional: Add rounded corners */
   }
 
   .btn-primary {
     padding-top: 3px;
   }
 </style>
+
+{% endblock %}
+
+{% block end_scripts %}
+
 <script>
   function toggleDropdown() {
     var dropdown = document.getElementById("typeDropdown");
     dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'block' : 'none';
   }
+  
 </script>
 {% endblock %}
