@@ -229,6 +229,11 @@ button[type="submit"] {
     background-color: darkblue;
 }
 
+.view {
+    margin-left: 5px;
+    color: rgb(22, 10, 154);
+    font-size: 18px;
+}
 h1 {
     color: #333;
 }

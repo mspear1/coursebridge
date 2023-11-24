@@ -16,6 +16,7 @@
 {% block nav %}
 <nav>
   <ul>
+    <!-- Display main pages if the user is logged in -->
     {% if 'logged_in' in session and session['logged_in'] %}
 
     <li><a href="{{url_for('main')}}">Home</a></li>

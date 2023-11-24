@@ -81,7 +81,8 @@ def stream():
     for post in posts:
         if post['timestamp']:   
             post['timestamp'] = get_time_difference(post['timestamp'])
-        post['major'] = post['major'].replace('_', ' ')
+        if post['major']:
+            post['major'] = post['major'].replace('_', ' ')
         post['tag'] = post['tag'].replace('_', ' ')
         if post['major2_minor']:
             post['major2_minor'] = post['major2_minor'].replace('_', ' ')
@@ -89,7 +90,7 @@ def stream():
             post['description'] = post['description'][:76] + '...'
         
     return render_template('stream.html',
-                        title='Stream - Coursebridge', posts = posts)
+                            title='Stream - Coursebridge', posts = posts)
 
 
 def get_time_difference(timestamp):
@@ -122,7 +123,6 @@ def create_post():
     else:
         conn = dbi.connect()
 
-        # check if the form should parse the stuff or should get as dictionary
         form_info = request.form  # dictionary of form data
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -203,12 +203,65 @@ def create_profile():
 #     row = curs.fetchone()
 #     return send_from_directory(app.config['UPLOADS'],row['filename'])
 
-@app.route('/update/')
-def update_post():
+@app.route('/display/<pid>')
+def display_post(pid):
     '''
-    Method for updating the post
+    Method for displaying a singular full post
     '''
-    pass
+    conn = dbi.connect()
+    post = helper.get_postinfo(conn, pid)
+
+    # reformatting data for display purposes
+    if post['timestamp']:   
+            post['timestamp'] = get_time_difference(post['timestamp'])
+    if post['major']:
+        post['major'] = post['major'].replace('_', ' ')
+    post['tag'] = post['tag'].replace('_', ' ')
+    if post['major2_minor']:
+        post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+
+    return render_template('display_post.html', title='Display Post - Coursebridge', post=post, pid=pid)
+
+
+@app.route('/update/<pid>', methods=["GET", "POST"])
+def update_post(pid):
+    '''
+    Method for getting the update post page and also updating the post
+    '''
+    conn = dbi.connect()
+    if request.method == 'GET':
+        post = helper.get_postinfo(conn, pid)
+        post['date'] = post['date'].strftime("%m-%d-%Y") # To prefill accurately
+
+        return render_template('update_post.html', title='Update Post - Coursebridge', post=post, pid=pid)
+    else:
+        conn = dbi.connect()
+        action = request.form.get('submit')
+        if action == 'update':
+            form_info = request.form  # dictionary of form data
+            
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+            
+            # Handling the case where the session expires while the user
+            # is in the midst of creating a post
+            id = 0
+            if 'id' in session:
+                id = session['id']
+
+                # To get name to display
+                name = helper.get_name(conn, id)['name']
+                session['name'] = name   
+            else:
+                flash('Sorry, your session has expired. Please login again.')
+                redirect(url_for('login'))
+            
+            helper.update_post(conn, form_info, timestamp, pid)
+
+            flash('Your post is updated!')
+        else: # for deleting the post
+            helper.delete_post(conn, pid)
+            flash('Post was deleted successfully')
+        return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
 
 @app.route('/logout')
 def logout():
@@ -235,6 +288,8 @@ def join():
     '''
     if request.method == 'GET':
         return render_template('join.html')
+    
+    # For form post from join
     username = request.form.get('username')
     passwd1 = request.form.get('password1')
     passwd2 = request.form.get('password2')
@@ -277,6 +332,7 @@ def login():
     # Gets the form for user to login 
     if request.method == 'GET':
         return render_template('login.html')
+    
     # Posts the form once user fills out information 
     else:
         username = request.form.get('username')

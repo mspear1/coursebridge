@@ -10,23 +10,23 @@ def add_post(conn, form, time, sid):
     ''' Adds a new post to the database and commits
     '''
     # Parsing form entries and cutting off entries that are too long 
-    # in case post request is not sent through the browser
+    # in case post request is not sent through the web interface
     title = form['title']
-    if len(title) > 30:
+    if title and len(title) > 30:
         title = title[:31]
     description = form['description']
-    if len(description) > 500:
+    if description and len(description) > 500:
         description = description[:501]
     location = form['location']
-    if len(location) > 50:
+    if location and len(location) > 50:
         location = location[:51]
     oncampus = form['oncampus']
     tag = form['tag']
     professor = form.get('professor', None) # default is None
-    if len(professor) > 50:
+    if professor and len(professor) > 50:
         professor = professor[:51]
     course = form.get('class', None)
-    if len(course) > 8:
+    if course and len(course) > 8:
         course = None
     date = form.get('date')  
     date = datetime.strptime(date, '%m-%d-%Y') # re-formatted the date so sql will accept it
@@ -40,6 +40,73 @@ def add_post(conn, form, time, sid):
                     [title, description, time, location, oncampus, tag, 
                     professor, course, date, 'open', sid]) 
     conn.commit()
+
+def update_post(conn, form, time, pid):
+    ''' Updates a post in the database and commits
+    ''' 
+    # Parsing form entries and cutting off entries that are too long 
+    # in case post request is not sent through the web interface
+    title = form['title']
+    if title and len(title) > 30:
+        title = title[:31]
+    description = form['description']
+    if description and len(description) > 500:
+        description = description[:501]
+    location = form['location']
+    oncampus = form['oncampus']
+    if location and len(location) > 50:
+        location = location[:51]
+    tag = form['tag']
+    professor = form.get('professor', None) # default is None
+    if professor and len(professor) > 50:
+        professor = professor[:51]
+    course = form.get('class', None)
+    if course and len(course) > 8:
+        course = None
+        
+    date = form.get('date')  
+    date = datetime.strptime(date, '%m-%d-%Y') # re-format the date so sql will accept it
+    curs = dbi.dict_cursor(conn)
+    
+    # Don't update timestamp for now, may change for alpha
+    curs.execute('''update post set title = %s, description = %s, location = %s, 
+                    on_campus = %s, tag = %s, professor = %s, class = %s, 
+                    date = %s, status = %s where pid = %s''', 
+                    [title, description, location, oncampus, tag, 
+                    professor, course, date, 'open', pid]) 
+    conn.commit()
+
+def delete_post(conn, pid):
+    '''
+    Deletes post from the database and commit
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''delete from post where pid = %s''', [pid])
+    conn.commit()
+
+
+# def get_postinfo(conn, pid):
+#     '''
+#     Retrieve the post information given the pid
+#     '''
+#     curs = dbi.dict_cursor(conn)
+#     curs.execute('''select * from post where pid = %s''', [pid])
+#     result = curs.fetchone()
+#     return result
+
+def get_postinfo(conn, pid):
+    '''
+    Retrieve the post information given the pid
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select student.name as studentname, student.major1 as major, 
+                    student.major2_minor as major2_minor, student.id as id, 
+                    title, description, timestamp, location, on_campus, tag, 
+                    professor, class, date, status, pid
+                    from post, student 
+                    where post.sid is not NULL and post.sid = student.id and pid = %s''', [pid])
+    result = curs.fetchone()
+    return result
     
 def get_posts(conn):
     '''
@@ -47,8 +114,8 @@ def get_posts(conn):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select student.name as studentname, student.major1 as major, 
-                    student.major2_minor as major2_minor, title, description, timestamp, 
-                    location, on_campus, tag, professor, class, date, status
+                    student.major2_minor as major2_minor, student.id as id, title, description, 
+                    timestamp, location, on_campus, tag, professor, class, date, status, pid
                     from post, student 
                     where post.sid is not NULL and post.sid = student.id;''')
     return curs.fetchall()
@@ -81,11 +148,11 @@ def add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
     '''
     # Parsing form entries and cutting off entries that are too long 
     # in case post request is not sent through the browser
-    if len(name) > 40:
+    if name and len(name) > 40:
         name = name[:41]
-    if len(phnumber) > 12:
+    if phnumber and len(phnumber) > 12:
         phnumber= phnumber[:13]
-    if len(dorm) > 20:
+    if dorm and len(dorm) > 20:
         dorm = dorm[:21]
     curs = dbi.dict_cursor(conn)
     
