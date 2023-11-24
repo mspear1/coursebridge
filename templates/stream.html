@@ -35,8 +35,8 @@
 
   <div class="btn-group">
     <label for="tentative-date" class="inline" style="margin-left:10px; ">Date</label><br>
-    <select type="button" name="dateorder" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" class="btn btn-primary dropdown-toggle"
-      data-toggle="dropdown" aria-haspopup="true">
+    <select type="button" name="dateorder" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
+    class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
       <div class="dropdown-menu" name="datedrop">
       <option class=" dropdown-item" name="drop" value="">Any Tentative Date</option>
         <option class="dropdown-item" name="drop" value="early">Earliest to Latest</option>
@@ -55,8 +55,9 @@
   {% for post in posts %}
   <div class="post-container">
     <div class="post-block">
-      <p class="inline">Posted by {{post.studentname}} {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
-      <span class="badge badge-pill badge-primary">{{post.major}}</span>
+      <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %} 
+        {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
+      {% if post.major1 %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
       {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
         style="margin-right:12px;">{{post.major2_minor}}</span>{% endif %}
       {% if post.id == session['id'] %}<span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Post</a></span>{% endif %}
