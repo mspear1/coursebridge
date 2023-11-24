@@ -123,7 +123,6 @@ def create_post():
     else:
         conn = dbi.connect()
 
-        # check if the form should parse the stuff or should get as dictionary
         form_info = request.form  # dictionary of form data
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -239,7 +238,6 @@ def update_post(pid):
         conn = dbi.connect()
         action = request.form.get('submit')
         if action == 'update':
-            # check if the form should parse the stuff or should get as dictionary
             form_info = request.form  # dictionary of form data
             
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -260,7 +258,7 @@ def update_post(pid):
             helper.update_post(conn, form_info, timestamp, pid)
 
             flash('Your post is updated!')
-        else:
+        else: # for deleting the post
             helper.delete_post(conn, pid)
             flash('Post was deleted successfully')
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
