@@ -60,7 +60,9 @@
       {% if post.major1 %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
       {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
         style="margin-right:12px;">{{post.major2_minor}}</span>{% endif %}
-      {% if post.id == session['id'] %}<span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Post</a></span>{% endif %}
+      {% if post.id == session['id'] %}
+      <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Post</a></span>
+      {% endif %}
       <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
 
     </div>
