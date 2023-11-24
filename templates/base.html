@@ -22,6 +22,7 @@
     <li><a href="{{url_for('main')}}">Home</a></li>
     <li><a href="{{url_for('stream')}}">Stream</a></li>
     <li><a href="{{url_for('create_post')}}">Create a Post</a></li>
+    <li><a href="{{url_for('create_profile')}}">Create a Profile</a></li>
 
     <li><a href="{{ url_for('logout') }}" class="logout">Logout</a></li>
     {% if session['name'] %}
