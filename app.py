@@ -147,7 +147,7 @@ def create_post():
 @app.route('/createprofile/', methods=["GET", "POST"])
 def create_profile():
     if request.method == 'GET':
-        return render_template('profile_form.html', title="Create Profile")
+        return render_template('profile_form.html', title="Create Profile - Coursebridge")
     else:
         try:
             id = int(session['id'])

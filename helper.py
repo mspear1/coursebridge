@@ -85,15 +85,6 @@ def delete_post(conn, pid):
     conn.commit()
 
 
-# def get_postinfo(conn, pid):
-#     '''
-#     Retrieve the post information given the pid
-#     '''
-#     curs = dbi.dict_cursor(conn)
-#     curs.execute('''select * from post where pid = %s''', [pid])
-#     result = curs.fetchone()
-#     return result
-
 def get_postinfo(conn, pid):
     '''
     Retrieve the post information given the pid
