@@ -165,10 +165,6 @@ def create_profile():
             major2_minor = request.form['major2_minor']
             dorm = request.form['dorm']
 
-            # To get name to display on nav bar
-            name = helper.get_name(conn, id)['name']
-            session['name'] = name 
-
             # Handling the case where the session expires while the user
             # is in the midst of creating a profile
             if 'id' in session:
@@ -177,6 +173,9 @@ def create_profile():
                     helper.upload_profile_pic(conn, id, filename)
 
                 helper.add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
+                # To get name to display on nav bar after creating a profile
+                user_name = helper.get_name(conn, id)['name']
+                session['name'] = user_name
                 flash('Profile Created!')
             else:
                 flash('Sorry, your session has expired. Please login again.')
