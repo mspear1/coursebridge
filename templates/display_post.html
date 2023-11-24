@@ -19,7 +19,7 @@
 
     <div class="post-block">
       <p class="inline">Posted by {{post.studentname}} {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
-      <span class="badge badge-pill badge-primary">{{post.major}}</span>
+      {% if post.major1 %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
       {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
         style="margin-right:12px;">{{post.major2_minor}}</span>
       {% endif %}
