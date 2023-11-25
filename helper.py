@@ -13,21 +13,21 @@ def add_post(conn, form, time, sid):
     # in case post request is not sent through the web interface
     title = form['title']
     if title and len(title) > 30:
-        title = title[:31]
+        title = title[:30]
     description = form['description']
     if description and len(description) > 500:
-        description = description[:501]
+        description = description[:500]
     location = form['location']
     if location and len(location) > 50:
-        location = location[:51]
+        location = location[:50]
     oncampus = form['oncampus']
     tag = form['tag']
     professor = form.get('professor', None) # default is None
     if professor and len(professor) > 50:
-        professor = professor[:51]
+        professor = professor[:50]
     course = form.get('class', None)
     if course and len(course) > 8:
-        course = None
+        course = course[:8]
     date = form.get('date')  
     date = datetime.strptime(date, '%m-%d-%Y') # re-formatted the date so sql will accept it
     # timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S') if date else None
@@ -48,21 +48,21 @@ def update_post(conn, form, time, pid):
     # in case post request is not sent through the web interface
     title = form['title']
     if title and len(title) > 30:
-        title = title[:31]
+        title = title[:30]
     description = form['description']
     if description and len(description) > 500:
-        description = description[:501]
+        description = description[:500]
     location = form['location']
     oncampus = form['oncampus']
     if location and len(location) > 50:
-        location = location[:51]
+        location = location[:50]
     tag = form['tag']
     professor = form.get('professor', None) # default is None
     if professor and len(professor) > 50:
-        professor = professor[:51]
+        professor = professor[:50]
     course = form.get('class', None)
     if course and len(course) > 8:
-        course = None
+        course = course[:8]
         
     date = form.get('date')  
     date = datetime.strptime(date, '%m-%d-%Y') # re-format the date so sql will accept it
@@ -140,11 +140,11 @@ def add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
     # Parsing form entries and cutting off entries that are too long 
     # in case post request is not sent through the browser
     if name and len(name) > 40:
-        name = name[:41]
+        name = name[:40]
     if phnumber and len(phnumber) > 12:
-        phnumber= phnumber[:13]
+        phnumber= phnumber[:12]
     if dorm and len(dorm) > 20:
-        dorm = dorm[:21]
+        dorm = dorm[:20]
     curs = dbi.dict_cursor(conn)
     
     curs.execute('''update student set name = %s, phone_num = %s, major1 = %s, 
