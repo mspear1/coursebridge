@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile - {{ session['username'] }}{% endblock %}
+
+{% block content %}
+  <h1>User Profile</h1>
+  <div>
+    {% if user_info.profile_pic %}
+    <img src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}">
+    {% endif %}
+    <h2>{{ session['name'] }}</h2>
+    <p>Username: {{ session['username'] }}</p>
+    <p>Email: {{ user_info.email_address }}</p>
+    <p>Phone Number: {{ user_info.phone_num }}</p>
+    <p>Major1: {{ user_info.major1 }}</p>
+    <p>Major2/Minor: {{ user_info.major2_minor }}</p>
+    <p>Major2/Minor: {{ user_info.major2_minor }}</p>
+    <p>Dorm: {{ user_info.dorm }}</p>
+    
+
+  </div>
+{% endblock %}

@@ -152,10 +152,20 @@ def add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
                     [name, phnumber, major1, major2_minor, dorm, id])
     conn.commit()
 
-def get_name(conn, id):
+def get_user_info(conn, id):
     '''
     Gets the user's name given the id, may be null
     '''
     curs = dbi.dict_cursor(conn)
-    curs.execute('''select name from student where id = %s''', [id])
+    curs.execute('''select name, phone_num, email_address, major1, 
+                    major2_minor, dorm_hall, profile_pic 
+                    from student where id = %s''', [id])
     return curs.fetchone()
+
+# def get_phnum(conn, id): 
+#     '''
+#     Gets the user's phone number given the id
+#     '''
+#     curs = dbi.dict_cursor(conn) 
+#     curs.execute('''select phone_num from student where id = %s''', [id])
+#     return curs.fetchone()

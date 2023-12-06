@@ -132,9 +132,6 @@ def create_post():
         if 'id' in session:
             id = session['id']
 
-            # To get name to display
-            name = helper.get_name(conn, id)['name']
-            session['name'] = name   
             helper.add_post(conn, form_info, timestamp, id)
             flash('Your post is created!')
         else:
@@ -173,8 +170,11 @@ def create_profile():
 
                 helper.add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
                 # To get name to display on nav bar after creating a profile
-                user_name = helper.get_name(conn, id)['name']
+                user_name = helper.get_user_info(conn, id)['name']
                 session['name'] = user_name
+
+                # To get phone_num to display
+                session['phone_num'] = phnumber
                 flash('Profile Created!')
             else:
                 flash('Sorry, your session has expired. Please login again.')
@@ -248,7 +248,7 @@ def update_post(pid):
                 id = session['id']
 
                 # To get name to display
-                name = helper.get_name(conn, id)['name']
+                name = helper.get_user_info(conn, id)['name']
                 session['name'] = name   
             else:
                 flash('Sorry, your session has expired. Please login again.')
@@ -286,10 +286,11 @@ def join():
     encrypted with bycrpt. 
     '''
     if request.method == 'GET':
-        return render_template('join.html')
+        return render_template('join.html', title="Join Coursebridge")
     
     # For form post from join
     username = request.form.get('username')
+    session['username'] = username
     passwd1 = request.form.get('password1')
     passwd2 = request.form.get('password2')
     if passwd1 != passwd2:
@@ -330,11 +331,12 @@ def login():
     '''
     # Gets the form for user to login 
     if request.method == 'GET':
-        return render_template('login.html')
+        return render_template('login.html', title="Login to Coursebridge")
     
     # Posts the form once user fills out information 
     else:
         username = request.form.get('username')
+        session['username'] = username
         passwd = request.form.get('password')
         conn = dbi.connect()
         curs = dbi.dict_cursor(conn)
@@ -364,8 +366,13 @@ def login():
             session['visits'] = 1
            
             # To get name to display
-            name = helper.get_name(conn, row['id'])['name']
+            name = helper.get_user_info(conn, row['id'])['name']
             session['name'] = name
+
+            # To get phone_num to display
+            phone_num = helper.get_user_info(conn, row['id'])['phone_num']
+            session['phone_num'] = phone_num
+
             # return redirect( url_for('user', username=username) )
             return redirect( url_for('stream') )
         else:
@@ -384,10 +391,19 @@ def user(username):
             username = session['username']
             id = session['id']
             session['visits'] = int(session['visits']) + 1
-            return render_template('greet.html', page_title = 'Welcome!')
+            return render_template('greet.html', title = 'Welcome!')
     except Exception as err:
         flash("Error" + str(err))
         return redirect( url_for('index'))
+
+
+@app.route('/profile') # methods="POST"?? 
+def profile():
+    conn = dbi.connect()
+    user_info = helper.get_user_info(conn, session['id'])
+
+    return render_template('profile.html', user_info = user_info, title="Profile - Coursebridge")
+
 
 
 
@@ -425,4 +441,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0',port)
+    app.run('0.0.0.0')
