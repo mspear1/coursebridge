@@ -117,11 +117,39 @@ def filter_posts(conn, type):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select student.name as studentname, student.major1 as major, 
-                    student.major2_minor as major2_minor, title, description, 
-                    timestamp, location, on_campus, tag, professor, class, date, status
+                    student.major2_minor as major2_minor, student.id as id, title, description, 
+                    timestamp, location, on_campus, tag, professor, class, date, status, pid
                     from post, student 
                     where post.sid is not NULL and post.sid = student.id and tag = %s;''', [type])
     return curs.fetchall()
+
+def search(conn, search_query):
+    '''
+    Searches through posts, filters out ones without mentioned keywords
+    '''
+    # split query into separate words to search mentions
+    search = ['%' + i + '%' for i in search_query.split()]
+
+    curs = dbi.dict_cursor(conn)
+    sql_query = '''select student.name as studentname, student.major1 as major, 
+                    student.major2_minor as major2_minor, student.id as id, title, description, 
+                    timestamp, location, on_campus, tag, professor, class, date, status, pid
+                    from post, student 
+                    where post.sid is not NULL and post.sid = student.id'''
+    for i in search:
+        sql_query += ''' and (title LIKE %s OR description LIKE %s) ''' # check within title and description for each item
+    sql_query += ''';'''
+
+    # make each item appear 2 times for each %s placeholder
+    placeholders = []
+    for i in search:
+        placeholders.append(i)
+        placeholders.append(i)
+
+    curs.execute(sql_query, placeholders)
+
+    return curs.fetchall()
+
 
 def upload_profile_pic(conn, nm, filename):
     '''

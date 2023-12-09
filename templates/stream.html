@@ -19,7 +19,16 @@
 
 
 <h2 name="stream" style="margin-top:20px">Stream</h2>
-<form method=post action="{{url_for('stream')}}" class="filter">
+
+<form method="post" action="{{url_for('stream')}}" class="filter">
+
+  <div>
+    <label for="search" class="inline" style="margin-right:10px;">Search </label>
+    <input type="text" class="search-input" name="search_query" placeholder="Keyword Search...">
+    <button class="btn btn-success">Search</button>
+  </div>
+
+
   <div class="btn-group">
     <label for="type" class="inline" style="margin-right:10px;">Type</label>
     <select type="button" name="type" style="height:35px; align-items:center;" class="btn btn-primary dropdown-toggle"
@@ -34,6 +43,20 @@
   </div>
 
   <div class="btn-group">
+    <label for="majors" class="inline" style="margin-left:10px; ">Major</label><br>
+    <select type="button" name="major" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
+    class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
+      <div class="dropdown-menu" name="majordrop">
+      <option class=" dropdown-item" name="drop" value="">Any Major</option>
+      {% for major in majors %}
+        <option class="dropdown-item" name="drop" value="{{major}}">{{major}}</option>
+      {% endfor %}
+      </div>
+    </select><br>
+  </div>
+
+
+  <div class="btn-group">
     <label for="tentative-date" class="inline" style="margin-left:10px; ">Date</label><br>
     <select type="button" name="dateorder" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
     class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
@@ -45,7 +68,7 @@
     </select><br>
   </div>
 
-  <input type="submit" value="Filter" />
+  <!-- <input type="submit" value="Filter" /> -->
 </form>
 
 

@@ -62,14 +62,30 @@ def stream():
     conn = dbi.connect()
     if request.method == 'GET':
         posts = helper.get_posts(conn)     
-    else:
-        type = request.form['type']
-        if type:
-            posts = helper.filter_posts(conn, type)
+    if request.method == 'POST':
+        search_query = request.form.get('search_query')
+
+        # Fetch posts based on the search query
+        if search_query is not None:
+            search_results = helper.search(conn, search_query)
         else:
-            posts = helper.get_posts(conn)
-        
-        date_order = request.form['dateorder']
+            search_results = []
+
+        # Fetch posts based on filters
+        type = request.form.get('type')
+        if type:
+            filtered = helper.filter_posts(conn, type)
+        else:
+            filtered = helper.get_posts(conn)
+
+        # Combine such that only posts *both* the search and filter grabbed will be displayed
+        posts = []
+        if len(search_results) > 0:
+            for i in filtered:
+                if i in search_results: # if common, add to posts to stream
+                    posts.append(i)
+
+        date_order = request.form.get('dateorder')
 
         # sort posts by date order
         if date_order == 'early':
@@ -90,7 +106,7 @@ def stream():
             post['description'] = post['description'][:76] + '...'
         
     return render_template('stream.html',
-                            title='Stream - Coursebridge', posts = posts)
+                            title='Stream - Coursebridge', posts = posts, majors=["Computer Science"])
 
 
 def get_time_difference(timestamp):
