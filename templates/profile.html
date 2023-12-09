@@ -6,9 +6,11 @@
   <h1>User Profile</h1>
   <div>
     {% if user_info.profile_pic %}
-    <img src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}">
+      <img class="profile-picture" src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}">
+
     {% endif %}
     <h2>{{ session['name'] }}</h2>
+    <p>Name: {{ session['name'] }}</p>
     <p>Username: {{ session['username'] }}</p>
     <p>Email: {{ user_info.email_address }}</p>
     <p>Phone Number: {{ user_info.phone_num }}</p>

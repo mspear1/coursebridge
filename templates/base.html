@@ -24,6 +24,7 @@
     <li><a href="{{url_for('create_post')}}">Create a Post</a></li>
     <li><a href="{{url_for('create_profile')}}">Create a Profile</a></li>
     <li><a href="{{url_for('profile')}}">Profile</a></li>
+    <li><a href="{{url_for('accounts')}}">Accounts</a></li>
     <li><a href="{{ url_for('logout') }}" class="logout">Logout</a></li>
     {% if session['name'] %}
     <li class="message">Welcome, {{ session['name'] }}!</li>

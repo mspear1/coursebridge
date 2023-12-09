@@ -162,6 +162,14 @@ def get_user_info(conn, id):
                     from student where id = %s''', [id])
     return curs.fetchone()
 
+def get_accounts(conn):
+    '''
+    Gets all users' accounts. 
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select name, email_address, major1, major2_minor, profile_pic from student''') 
+    return curs.fetchall()
+
 # def get_phnum(conn, id): 
 #     '''
 #     Gets the user's phone number given the id

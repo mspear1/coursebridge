@@ -21,7 +21,7 @@ from datetime import timedelta
 import sys, os, random
 import imghdr
 
-app.config['UPLOADS'] = 'uploads'
+app.config['UPLOADS'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024 # 2 MB
 
 # To increase session time 
@@ -30,10 +30,10 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 app.secret_key = 'your secret here'
 # replace that with a random key
-app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+'''app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
                                           'abcdefghijklmnopqrstuvxyz' +
                                           '0123456789'))
-                           for i in range(20) ])
+                           for i in range(20) ])'''
 
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
@@ -379,7 +379,7 @@ def login():
             flash('login incorrect. Try again or join')
             return redirect( url_for('index'))
 
-@app.route('/user/<username>')
+@app.route('/user/<username>/')
 def user(username):
     """
     Page that displays user information
@@ -397,12 +397,19 @@ def user(username):
         return redirect( url_for('index'))
 
 
-@app.route('/profile') # methods="POST"?? 
+@app.route('/profile/') # methods="POST"?? 
 def profile():
     conn = dbi.connect()
     user_info = helper.get_user_info(conn, session['id'])
 
     return render_template('profile.html', user_info = user_info, title="Profile - Coursebridge")
+
+@app.route('/accounts/')
+def accounts():
+    conn = dbi.connect()
+    accounts = helper.get_accounts(conn)
+
+    return render_template('accounts.html', title="Accounts", all_users = accounts)
 
 
 
@@ -433,6 +440,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         # arg, if any, is the desired port number
         port = int(sys.argv[1])
+        
         assert(port>1024)
     else:
         port = os.getuid()
