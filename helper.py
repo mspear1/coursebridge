@@ -33,7 +33,6 @@ def add_post(conn, form, time, sid):
     # timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S') if date else None
     curs = dbi.dict_cursor(conn)
 
-    # NEED TO LATER add sid
     curs.execute('''insert into post(title, description, timestamp, location, 
                     on_campus, tag, professor, class, date, status, sid) 
                     values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);''', 
@@ -190,6 +189,65 @@ def get_user_info(conn, id):
                     from student where id = %s''', [id])
     return curs.fetchone()
 
+def get_post_comments(conn, postid):
+    '''
+    Inputs: The postid (pid)
+    Gets the comments for a post given the postid
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select description, sid, timestamp, pid,
+                    name 
+                    from comment, student where 
+                    pid = %s and comment.sid = student.id;''', 
+                    [postid])
+    return curs.fetchall()
+
+def get_poster_sid(conn, pid):
+    '''
+    Inputs: post id (pid)
+    Gets the original poster's sid, for making a phone request
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select sid from post
+                    where post.pid = %s''',
+                    [pid])
+    return curs.fetchone()
+    
+
+def insert_comment(conn, comment, sid, time, pid):
+    '''
+    Inputs: comment, student id (sid) of commenter, timestamp, post id (pid)
+    Inserts the user comment into the database
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''insert into comment(description, sid, timestamp, pid)
+                    values (%s, %s, %s, %s)''',
+                    [comment, sid, time, pid])
+    conn.commit()
+
+def make_phone_request(conn, sid, id):
+    '''
+    Inputs: student id of approver, id of requester 
+    Inserts phone request into the database
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''insert into phnum(requester, approver, approved)
+                    values (%s, %s, %s)''',
+                    [id, sid, 'no'])
+    conn.commit()
+
+def check_request_ph(conn, id, sid):
+    '''
+    Inputs: id of requester, id of approver 
+    Checks if the user already requested the poster's phone number,
+    to not display the request phone number
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select * from phnum where
+                    requester=%s and approver=%s''',
+                    [id, sid])
+    return curs.fetchall()
+
 def get_accounts(conn):
     '''
     Gets all users' accounts. 
@@ -205,3 +263,4 @@ def get_accounts(conn):
 #     curs = dbi.dict_cursor(conn) 
 #     curs.execute('''select phone_num from student where id = %s''', [id])
 #     return curs.fetchone()
+

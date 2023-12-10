@@ -24,12 +24,13 @@ import imghdr
 app.config['UPLOADS'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024 # 2 MB
 
-# To increase session time 
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+# # To increase session time 
+# app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 
 app.secret_key = 'your secret here'
 # replace that with a random key
+
 '''app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
                                           'abcdefghijklmnopqrstuvxyz' +
                                           '0123456789'))
@@ -103,7 +104,7 @@ def stream():
         if post['major2_minor']:
             post['major2_minor'] = post['major2_minor'].replace('_', ' ')
         if len(post['description']) > 75: # If the description is too long, cut it short
-            post['description'] = post['description'][:76] + '...'
+            post['description'] = post['description'][:100] + '...'
         
     return render_template('stream.html',
                             title='Stream - Coursebridge', posts = posts, majors=["Computer Science"])
@@ -111,6 +112,7 @@ def stream():
 
 def get_time_difference(timestamp):
     '''
+    inputs: timestamp
     Helper function to convert the timestamp into a time format that is more
     digestible to users (e.g., Wednesday, 11/15)
     '''
@@ -158,6 +160,11 @@ def create_post():
 
 @app.route('/createprofile/', methods=["GET", "POST"])
 def create_profile():
+    '''
+    Method for creating the user's profile
+    Renders the profile form for GET, 
+    inserts the form information into database for POST
+    '''
     if request.method == 'GET':
         return render_template('profile_form.html', title="Create Profile - Coursebridge")
     else:
@@ -218,24 +225,56 @@ def create_profile():
 #     row = curs.fetchone()
 #     return send_from_directory(app.config['UPLOADS'],row['filename'])
 
-@app.route('/display/<pid>')
+@app.route('/display/<pid>', methods=["GET", "POST"])  # may not need post
 def display_post(pid):
     '''
+    Inputs: pid, the post ID
     Method for displaying a singular full post
+    Can also post a comment for the post
     '''
     conn = dbi.connect()
-    post = helper.get_postinfo(conn, pid)
+    id = int(session['id'])
 
-    # reformatting data for display purposes
-    if post['timestamp']:   
+    if request.method == 'GET':
+        post = helper.get_postinfo(conn, pid)
+
+        # Reformatting data for display purposes
+        if post['timestamp']:   
             post['timestamp'] = get_time_difference(post['timestamp'])
-    if post['major']:
-        post['major'] = post['major'].replace('_', ' ')
-    post['tag'] = post['tag'].replace('_', ' ')
-    if post['major2_minor']:
-        post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+        if post['major']:
+            post['major'] = post['major'].replace('_', ' ')
+        post['tag'] = post['tag'].replace('_', ' ')
+        if post['major2_minor']:
+            post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+        comments = helper.get_post_comments(conn, pid)
+        for comment in comments:
+            comment['timestamp'] = get_time_difference(comment['timestamp'])
+        
+        sid = helper.get_poster_sid(conn, pid)['sid']
+        # Check if the phone number is already requested
+        phnum_req = helper.check_request_ph(conn, id, sid)
+        
+        return render_template('display_post.html', title='Display Post - Coursebridge', post=post, pid=pid, comments=comments, phnum_request=phnum_req)
+        
+    else: # Post request for commenting
+        new_comment = request.form.get("comment")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M") # Get current time
+        helper.insert_comment(conn, new_comment, id, timestamp, pid)
+        return redirect(url_for('display_post', pid=pid)) # Return back to the page after inserting the comment
 
-    return render_template('display_post.html', title='Display Post - Coursebridge', post=post, pid=pid)
+ 
+
+@app.route('/phrequest/<pid>', methods=['GET'])
+def request_ph(pid):
+    '''
+    Inputs: pid, the post ID
+    Method for handling the phone number request
+    '''
+    conn = dbi.connect()
+    sid = helper.get_poster_sid(conn, pid)['sid']
+    id = int(session['id'])
+    helper.make_phone_request(conn, sid, id) 
+    return redirect(url_for('display_post', pid=pid))
 
 
 @app.route('/update/<pid>', methods=["GET", "POST"])
@@ -382,20 +421,25 @@ def login():
             session['visits'] = 1
            
             # To get name to display
-            name = helper.get_user_info(conn, row['id'])['name']
-            session['name'] = name
+            name = helper.get_name(conn, row['id'])['name']
+            if name:
+                session['name'] = name
+                # return redirect( url_for('user', username=username) )
+                return redirect( url_for('stream') )
+            
+            # In case they created an account before but 
+            # didn't actually create their profile (exited the tab) 
+            else: 
+                return redirect(url_for('create_profile'))
 
-            # To get phone_num to display
-            phone_num = helper.get_user_info(conn, row['id'])['phone_num']
-            session['phone_num'] = phone_num
-
-            # return redirect( url_for('user', username=username) )
-            return redirect( url_for('stream') )
         else:
             flash('login incorrect. Try again or join')
             return redirect( url_for('index'))
 
-@app.route('/user/<username>/')
+
+
+
+@app.route('/user/<username>')
 def user(username):
     """
     Page that displays user information
@@ -427,27 +471,6 @@ def accounts():
 
     return render_template('accounts.html', title="Accounts", all_users = accounts)
 
-
-
-
-# You will probably not need the routes below, but they are here
-# just in case. Please delete them if you are not using them
-
-# @app.route('/greet/', methods=["GET", "POST"])
-# def greet():
-#     if request.method == 'GET':
-#         return render_template('greet.html', title='Customized Greeting')
-#     else:
-#         try:
-#             username = request.form['username'] # throws error if there's trouble
-#             flash('form submission successful')
-#             return render_template('greet.html',
-#                                    title='Welcome '+username,
-#                                    name=username)
-
-#         except Exception as err:
-#             flash('form submission error'+str(err))
-#             return redirect( url_for('index') )
 
 
 
