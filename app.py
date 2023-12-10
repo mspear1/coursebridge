@@ -221,7 +221,7 @@ def create_profile():
         
       
 
-# Will likely use a variant of this function for alpha
+# Will likely use a variant of this function for beta
 # @app.route('/pic/<nm>')
 # def pic(nm):
 #     conn = dbi.connect()
@@ -446,24 +446,6 @@ def login():
         else:
             flash('login incorrect. Try again or join')
             return redirect( url_for('index'))
-
-
-@app.route('/user/<username>')
-def user(username):
-    """
-    Page that displays user information
-    This is for alpha round -- ignore for now 
-    """
-    try: 
-        username = session['username']
-        if 'username' in session: 
-            username = session['username']
-            id = session['id']
-            session['visits'] = int(session['visits']) + 1
-            return render_template('greet.html', title = 'Welcome!')
-    except Exception as err:
-        flash("Error" + str(err))
-        return redirect( url_for('index'))
 
 
 @app.route('/profile/<id>', methods=['GET', 'POST']) # methods="POST"?? 
