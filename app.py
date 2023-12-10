@@ -30,10 +30,11 @@ app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024 # 2 MB
 
 app.secret_key = 'your secret here'
 # replace that with a random key
-# app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
-#                                           'abcdefghijklmnopqrstuvxyz' +
-#                                           '0123456789'))
-#                            for i in range(20) ])
+
+'''app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                          'abcdefghijklmnopqrstuvxyz' +
+                                          '0123456789'))
+                           for i in range(20) ])'''
 
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
@@ -62,14 +63,30 @@ def stream():
     conn = dbi.connect()
     if request.method == 'GET':
         posts = helper.get_posts(conn)     
-    else:
-        type = request.form['type']
-        if type:
-            posts = helper.filter_posts(conn, type)
+    if request.method == 'POST':
+        search_query = request.form.get('search_query')
+
+        # Fetch posts based on the search query
+        if search_query is not None:
+            search_results = helper.search(conn, search_query)
         else:
-            posts = helper.get_posts(conn)
-        
-        date_order = request.form['dateorder']
+            search_results = []
+
+        # Fetch posts based on filters
+        type = request.form.get('type')
+        if type:
+            filtered = helper.filter_posts(conn, type)
+        else:
+            filtered = helper.get_posts(conn)
+
+        # Combine such that only posts *both* the search and filter grabbed will be displayed
+        posts = []
+        if len(search_results) > 0:
+            for i in filtered:
+                if i in search_results: # if common, add to posts to stream
+                    posts.append(i)
+
+        date_order = request.form.get('dateorder')
 
         # sort posts by date order
         if date_order == 'early':
@@ -90,7 +107,7 @@ def stream():
             post['description'] = post['description'][:100] + '...'
         
     return render_template('stream.html',
-                            title='Stream - Coursebridge', posts = posts)
+                            title='Stream - Coursebridge', posts = posts, majors=["Computer Science"])
 
 
 def get_time_difference(timestamp):
@@ -124,7 +141,6 @@ def create_post():
     else:
         conn = dbi.connect()
 
-        # check if the form should parse the stuff or should get as dictionary
         form_info = request.form  # dictionary of form data
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -134,9 +150,6 @@ def create_post():
         if 'id' in session:
             id = session['id']
 
-            # To get name to display
-            name = helper.get_name(conn, id)['name']
-            session['name'] = name   
             helper.add_post(conn, form_info, timestamp, id)
             flash('Your post is created!')
         else:
@@ -180,8 +193,11 @@ def create_profile():
 
                 helper.add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
                 # To get name to display on nav bar after creating a profile
-                user_name = helper.get_name(conn, id)['name']
+                user_name = helper.get_user_info(conn, id)['name']
                 session['name'] = user_name
+
+                # To get phone_num to display
+                session['phone_num'] = phnumber
                 flash('Profile Created!')
             else:
                 flash('Sorry, your session has expired. Please login again.')
@@ -276,7 +292,6 @@ def update_post(pid):
         conn = dbi.connect()
         action = request.form.get('submit')
         if action == 'update':
-            # check if the form should parse the stuff or should get as dictionary
             form_info = request.form  # dictionary of form data
             
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -288,7 +303,7 @@ def update_post(pid):
                 id = session['id']
 
                 # To get name to display
-                name = helper.get_name(conn, id)['name']
+                name = helper.get_user_info(conn, id)['name']
                 session['name'] = name   
             else:
                 flash('Sorry, your session has expired. Please login again.')
@@ -297,7 +312,7 @@ def update_post(pid):
             helper.update_post(conn, form_info, timestamp, pid)
 
             flash('Your post is updated!')
-        else:
+        else: # for deleting the post
             helper.delete_post(conn, pid)
             flash('Post was deleted successfully')
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
@@ -326,10 +341,11 @@ def join():
     encrypted with bycrpt. 
     '''
     if request.method == 'GET':
-        return render_template('join.html')
+        return render_template('join.html', title="Join Coursebridge")
     
     # For form post from join
     username = request.form.get('username')
+    session['username'] = username
     passwd1 = request.form.get('password1')
     passwd2 = request.form.get('password2')
     if passwd1 != passwd2:
@@ -370,11 +386,12 @@ def login():
     '''
     # Gets the form for user to login 
     if request.method == 'GET':
-        return render_template('login.html')
+        return render_template('login.html', title="Login to Coursebridge")
     
     # Posts the form once user fills out information 
     else:
         username = request.form.get('username')
+        session['username'] = username
         passwd = request.form.get('password')
         conn = dbi.connect()
         curs = dbi.dict_cursor(conn)
@@ -414,9 +431,11 @@ def login():
             # didn't actually create their profile (exited the tab) 
             else: 
                 return redirect(url_for('create_profile'))
+
         else:
             flash('login incorrect. Try again or join')
             return redirect( url_for('index'))
+
 
 
 
@@ -432,10 +451,26 @@ def user(username):
             username = session['username']
             id = session['id']
             session['visits'] = int(session['visits']) + 1
-            return render_template('greet.html', page_title = 'Welcome!')
+            return render_template('greet.html', title = 'Welcome!')
     except Exception as err:
         flash("Error" + str(err))
         return redirect( url_for('index'))
+
+
+@app.route('/profile/') # methods="POST"?? 
+def profile():
+    conn = dbi.connect()
+    user_info = helper.get_user_info(conn, session['id'])
+
+    return render_template('profile.html', user_info = user_info, title="Profile - Coursebridge")
+
+@app.route('/accounts/')
+def accounts():
+    conn = dbi.connect()
+    accounts = helper.get_accounts(conn)
+
+    return render_template('accounts.html', title="Accounts", all_users = accounts)
+
 
 
 
@@ -444,6 +479,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         # arg, if any, is the desired port number
         port = int(sys.argv[1])
+        
         assert(port>1024)
     else:
         port = os.getuid()
@@ -452,4 +488,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0',port)
+    app.run('0.0.0.0')

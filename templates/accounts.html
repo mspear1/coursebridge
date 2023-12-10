@@ -1,0 +1,23 @@
+
+
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Accounts</h1>
+  <ul>
+    {% for user in all_users %}
+      <li class="accounts">
+        {% if user.profile_pic %}
+          <img class="accounts-picture" src="{{url_for('static', filename='uploads/'+user.profile_pic)}}">
+        {% endif %}
+        <span class="name">{{ user.name}}: </span>  
+        <span class="email-address">{{ user.email_address }} &nbsp &nbsp &nbsp</span>  
+        <span class="major1">{{ user.major1 }}</span>
+        {% if major2_minor %} 
+          <span class="major2_minor"> & {{ user.major2_minor }}</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+

@@ -116,11 +116,39 @@ def filter_posts(conn, type):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select student.name as studentname, student.major1 as major, 
-                    student.major2_minor as major2_minor, title, description, 
-                    timestamp, location, on_campus, tag, professor, class, date, status
+                    student.major2_minor as major2_minor, student.id as id, title, description, 
+                    timestamp, location, on_campus, tag, professor, class, date, status, pid
                     from post, student 
                     where post.sid is not NULL and post.sid = student.id and tag = %s;''', [type])
     return curs.fetchall()
+
+def search(conn, search_query):
+    '''
+    Searches through posts, filters out ones without mentioned keywords
+    '''
+    # split query into separate words to search mentions
+    search = ['%' + i + '%' for i in search_query.split()]
+
+    curs = dbi.dict_cursor(conn)
+    sql_query = '''select student.name as studentname, student.major1 as major, 
+                    student.major2_minor as major2_minor, student.id as id, title, description, 
+                    timestamp, location, on_campus, tag, professor, class, date, status, pid
+                    from post, student 
+                    where post.sid is not NULL and post.sid = student.id'''
+    for i in search:
+        sql_query += ''' and (title LIKE %s OR description LIKE %s) ''' # check within title and description for each item
+    sql_query += ''';'''
+
+    # make each item appear 2 times for each %s placeholder
+    placeholders = []
+    for i in search:
+        placeholders.append(i)
+        placeholders.append(i)
+
+    curs.execute(sql_query, placeholders)
+
+    return curs.fetchall()
+
 
 def upload_profile_pic(conn, nm, filename):
     '''
@@ -151,14 +179,15 @@ def add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
                     [name, phnumber, major1, major2_minor, dorm, id])
     conn.commit()
 
-def get_name(conn, id):
+def get_user_info(conn, id):
     '''
     Gets the user's name given the id, may be null
     '''
     curs = dbi.dict_cursor(conn)
-    curs.execute('''select name from student where id = %s''', [id])
+    curs.execute('''select name, phone_num, email_address, major1, 
+                    major2_minor, dorm_hall, profile_pic 
+                    from student where id = %s''', [id])
     return curs.fetchone()
-
 
 def get_post_comments(conn, postid):
     '''
@@ -196,7 +225,6 @@ def insert_comment(conn, comment, sid, time, pid):
                     [comment, sid, time, pid])
     conn.commit()
 
-
 def make_phone_request(conn, sid, id):
     '''
     Inputs: student id of approver, id of requester 
@@ -219,3 +247,20 @@ def check_request_ph(conn, id, sid):
                     requester=%s and approver=%s''',
                     [id, sid])
     return curs.fetchall()
+
+def get_accounts(conn):
+    '''
+    Gets all users' accounts. 
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select name, email_address, major1, major2_minor, profile_pic from student''') 
+    return curs.fetchall()
+
+# def get_phnum(conn, id): 
+#     '''
+#     Gets the user's phone number given the id
+#     '''
+#     curs = dbi.dict_cursor(conn) 
+#     curs.execute('''select phone_num from student where id = %s''', [id])
+#     return curs.fetchone()
+

@@ -291,6 +291,7 @@ li {
 }
 
 
+
 .comment-container {
     background-color: #dddbdb;
     border: 2px gray;
@@ -363,3 +364,32 @@ li {
 .rid-bottom {
     margin-bottom: 1px;
 }
+
+.accounts {
+    color: black;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 60%;
+  }
+
+.accounts .email-address,
+.accounts .major1, 
+.accounts .major2_minor{
+  color: #616161; 
+}
+
+
+.profile-picture {
+    width: 200px; 
+    height: auto; 
+    border-radius: 10%; 
+}
+
+.accounts-picture {
+    width: 50px; 
+    height: auto; 
+    border-radius: 10%; 
+}  
