@@ -41,7 +41,9 @@ def add_post(conn, form, time, sid):
     conn.commit()
 
 def update_post(conn, form, time, pid):
-    ''' Updates a post in the database and commits
+    ''' 
+    Inputs: post form content, timestamp, post id
+    Updates a post in the database and commits
     ''' 
     # Parsing form entries and cutting off entries that are too long 
     # in case post request is not sent through the web interface
@@ -77,6 +79,7 @@ def update_post(conn, form, time, pid):
 
 def delete_post(conn, pid):
     '''
+    Inputs: pid, id of post
     Deletes post from the database and commit
     '''
     curs = dbi.dict_cursor(conn)
@@ -162,6 +165,7 @@ def upload_profile_pic(conn, nm, filename):
 
 def add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
     '''
+    Inputs: name, phnumber, major1, major2_minor, dorm, id of user
     Adds the user's profile information to the database
     '''
     # Parsing form entries and cutting off entries that are too long 
@@ -253,14 +257,41 @@ def get_accounts(conn):
     Gets all users' accounts. 
     '''
     curs = dbi.dict_cursor(conn)
-    curs.execute('''select name, email_address, major1, major2_minor, profile_pic from student''') 
+    curs.execute('''select id, name, email_address, major1, major2_minor, profile_pic from student''') 
     return curs.fetchall()
 
-# def get_phnum(conn, id): 
-#     '''
-#     Gets the user's phone number given the id
-#     '''
-#     curs = dbi.dict_cursor(conn) 
-#     curs.execute('''select phone_num from student where id = %s''', [id])
-#     return curs.fetchone()
+def get_phone_requests_received(conn, id):
+    '''
+    Inputs: id of user
+    Gets all the phone number requests that the user received along with requester info 
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select requester, approver, approved,
+                    student.name as name, student.major1 as major1
+                    from phnum, student 
+                    where approver=%s and phnum.requester = student.id''', [id])
+    return curs.fetchall()
 
+def get_phone_requests_made(conn, id):
+    '''
+    Inputs: id of user
+    Gets all the phone number requests that the user made along with approver info 
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select requester, approver, approved,
+                    student.name as name, student.major1 as major1, student.phone_num as phone
+                    from phnum, student 
+                    where requester=%s and phnum.approver = student.id''', [id])
+    return curs.fetchall()
+
+def accept_phone_req(conn, id, sid):
+    ''''
+    Inputs: id of approver, sid of requester
+    Changes approved status to 'yes'
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''update phnum set approved = %s
+                    where approver=%s and requester=%s''',
+                    ['yes', id, sid])
+    conn.commit()
+    
