@@ -20,7 +20,7 @@
     <p class="inline">Posted by {{post.studentname}} {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
     {% if post.major1 %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
     {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
-      style="margin-right:12px;">{{post.major2_minor}}</span>
+      style="margin-left:12px;">{{post.major2_minor}}</span>
     {% endif %}
 
   </div>
@@ -40,7 +40,7 @@
     {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{% endif %}
 
     <div style="display: block;">
-      {% if phnum_request is not none %}
+      {% if phnum_request %}
         <p style="color:rgb(41, 13, 124)">You requested their phone number</p>
       {% else %}
       <button class="btn btn-primary"><a style="color: rgb(233, 246, 250);" href="{{ url_for('request_ph', pid=post.pid) }}">Request Phone Number</a></button>
