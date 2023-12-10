@@ -57,7 +57,7 @@
 
 
   <div class="btn-group">
-    <label for="tentative-date" class="inline" style="margin-left:10px; ">Date</label><br>
+    <label for="tentative-date" class="inline"">Date</label><br>
     <select type="button" name="dateorder" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
     class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
       <div class="dropdown-menu" name="datedrop">
@@ -82,7 +82,7 @@
         {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
       {% if post.major1 %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
       {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
-        style="margin-right:12px;">{{post.major2_minor}}</span>{% endif %}
+        style="margin-left:12px;">{{post.major2_minor}}</span>{% endif %}
       {% if post.id == session['id'] %}
       <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Post</a></span>
       {% endif %}

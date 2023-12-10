@@ -421,7 +421,7 @@ def login():
             session['visits'] = 1
            
             # To get name to display
-            name = helper.get_name(conn, row['id'])['name']
+            name = helper.get_user_info(conn, row['id'])['name']
             if name:
                 session['name'] = name
                 # return redirect( url_for('user', username=username) )
