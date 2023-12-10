@@ -37,33 +37,38 @@ nav ul {
     list-style: none;
     margin: 0;
     padding: 0;
-    background-color: #03115b; /* Set your desired background color */
-  }
-  
-  nav li {
+    background-color: #03115b;
+    /* Set your desired background color */
+}
+
+nav li {
     display: inline-block;
     color: white;
     font-family: Verdana;
-  }
-  
-  nav a {
+}
+
+nav a {
     display: block;
-    padding: 15px 20px; /* Adjust the padding as needed */
+    padding: 15px 20px;
+    /* Adjust the padding as needed */
     text-decoration: none;
-    color: white; /* Set your desired text color */
+    color: white;
+    /* Set your desired text color */
     font-family: Verdana;
-  }
-  
-  /* Style the logout link differently */
-  nav li:nth-last-child(2) a {
-    font-size: 14px; /* Set a smaller font size for the logout link */
-  }
-  
-  /* Add hover effect */
-  nav a:hover {
-    background-color: #555; /* Set your desired hover background color */
-  }
-  
+}
+
+/* Style the logout link differently */
+nav li:nth-last-child(2) a {
+    font-size: 14px;
+    /* Set a smaller font size for the logout link */
+}
+
+/* Add hover effect */
+nav a:hover {
+    background-color: #555;
+    /* Set your desired hover background color */
+}
+
 
 /* because of the margin trick, this can only be used for the last element */
 
@@ -216,9 +221,9 @@ option[name="drop"] {
 }
 
 .dropdown-menu [name="datedrop"] {
-    height:30px; 
-    margin-bottom:5px; 
-    align-items:center;
+    height: 30px;
+    margin-bottom: 5px;
+    align-items: center;
 }
 
 .logout {
@@ -234,6 +239,7 @@ button[type="submit"] {
     color: rgb(22, 10, 154);
     font-size: 18px;
 }
+
 h1 {
     color: #333;
 }
@@ -286,9 +292,9 @@ ul {
     padding: 0;
 }
 
-li {
+/* li {
     color: #dc3545;
-}
+} */
 
 
 
@@ -304,25 +310,28 @@ li {
 }
 
 .user-comment {
-    align-self: flex-end; /* display user comment to the right */
-    background-color: #aee8e8; 
+    align-self: flex-end;
+    /* display user comment to the right */
+    background-color: #ebefef;
+    border: white 2px;
     padding: 8px;
     border-radius: 8px;
     margin: 8px 0;
     min-width: 200px;
-    width: auto; 
-  }
-  
-  .other-comment {
-    align-self: flex-start; /* Move other comments to the left */
-    background-color: #e8e8e8; 
-    padding: 8px;
-    border-radius: 8px;
-    margin: 8px 0;
-    min-width: 200px;
-  }
+    width: auto;
+}
 
-  .comment-form {
+.other-comment {
+    align-self: flex-start;
+    /* Move other comments to the left */
+    background-color: #88e7df;
+    padding: 8px;
+    border-radius: 8px;
+    margin: 8px 0;
+    min-width: 200px;
+}
+
+.comment-form {
     max-width: 600px;
     margin: 20px auto;
     background-color: #fff;
@@ -373,23 +382,46 @@ li {
     border: 1px solid #ddd;
     border-radius: 5px;
     width: 60%;
-  }
+}
 
 .accounts .email-address,
-.accounts .major1, 
-.accounts .major2_minor{
-  color: #616161; 
+.accounts .major1,
+.accounts .major2_minor {
+    color: #616161;
 }
 
 
 .profile-picture {
-    width: 200px; 
-    height: auto; 
-    border-radius: 10%; 
+    width: 200px;
+    height: auto;
+    border-radius: 10%;
 }
 
 .accounts-picture {
-    width: 50px; 
-    height: auto; 
-    border-radius: 10%; 
-}  
+    width: 50px;
+    height: auto;
+    border-radius: 10%;
+}
+
+.aligned-table {
+    display: table;
+    border-collapse: collapse;
+    width: 60%;
+    font-family: Arial, sans-serif;
+}
+
+.aligned-table-row {
+    display: table-row;
+}
+
+.aligned-table-cell {
+    display: table-cell;
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.aligned-table-header {
+    font-weight: bold;
+    background-color: #f2f2f2;
+}

@@ -3,17 +3,19 @@
 {% block title %}User Profile - {{ session['username'] }}{% endblock %}
 
 {% block content %}
-  <h1>User Profile</h1>
+  <h2>{{ user_info.name }}'s Profile</h2>
   <div>
     {% if user_info.profile_pic %}
       <img class="profile-picture" src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}">
 
     {% endif %}
-    <h2>{{ session['name'] }}</h2>
-    <p>Name: {{ session['name'] }}</p>
-    <p>Username: {{ session['username'] }}</p>
+    <!-- <h2>{{ user_info.name }}'s Profile</h2> -->
+    <p>Name: {{ user_info.name }}</p>
+    <p>Username: {{ user_info.email_address }}</p>
     <p>Email: {{ user_info.email_address }}</p>
+    {% if id == session['id'] %}
     <p>Phone Number: {{ user_info.phone_num }}</p>
+    {% endif %}
     <p>Major1: {{ user_info.major1 }}</p>
     <p>Major2/Minor: {{ user_info.major2_minor }}</p>
     <p>Major2/Minor: {{ user_info.major2_minor }}</p>
@@ -21,4 +23,51 @@
     
 
   </div>
+
+  {% if id == session['id'] %}
+  <div>
+    <h3>People Who Requested Your Phone Number</h3>
+    <ul>
+      {% for phnum in phnum_requests_received %}
+        {% if phnum.approved == 'no' %}
+        <li>
+          <form method="post" action="{{ url_for('profile') }}">
+            <input type="hidden" name="phnum_sid" value="{{ phnum.requester }}">
+            <div class="container">
+              <p class="inline">{{phnum.name}} &nbsp {{phnum.major1}}</p>
+              
+              <button type="submit" style="font-size:15px;">Approve Request</button>
+            </div>
+          </form>
+        </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    <h3>Your Phone Number Requests</h3>
+
+    
+    <div class="aligned-table">
+      <div class="aligned-table-row aligned-table-header">
+        <div class="aligned-table-cell">Name</div>
+        <div class="aligned-table-cell">Major</div>
+        <div class="aligned-table-cell">Approved</div>
+        <div class="aligned-table-cell">Phone</div>
+      </div>
+    
+      {% for ph in phnum_requests_made %}
+        <div class="aligned-table-row">
+          <div class="aligned-table-cell">{{ ph.name }}</div>
+          <div class="aligned-table-cell">{{ ph.major1 }}</div>
+          <div class="aligned-table-cell">{{ ph.approved }}</div>
+          {% if ph.approved == 'yes' %}
+            <div class="aligned-table-cell">{{ ph.phone }}</div>
+          {% else %}
+            <div class="aligned-table-cell"></div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+  {% endif %}
 {% endblock %}

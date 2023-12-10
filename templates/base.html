@@ -2,7 +2,7 @@
 <html lang='en'>
 <!-- @authors: Ashley, Emily, Louisa, Madelynn -->
 
-<!--Didn't include bootstrap for base because otherwise, it negatively affects
+<!--Didn't include bootstrap in base because otherwise, it negatively affects
 CSS for the login and join forms-->
 <head>
     <meta charset='utf-8'>
@@ -28,7 +28,7 @@ CSS for the login and join forms-->
     <li><a href="{{url_for('stream')}}">Stream</a></li>
     <li><a href="{{url_for('create_post')}}">Create a Post</a></li>
 
-    <li><a href="{{url_for('profile')}}">Profile</a></li>
+    <li><a href="{{url_for('profile', id=session['id'])}}">Profile</a></li>
     <li><a href="{{url_for('accounts')}}">Accounts</a></li>
     <li><a href="{{ url_for('logout') }}" class="logout">Logout</a></li>
 

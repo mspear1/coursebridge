@@ -23,15 +23,15 @@
 <form method="post" action="{{url_for('stream')}}" class="filter">
 
   <div>
-    <label for="search" class="inline" style="margin-right:10px;">Search </label>
-    <input type="text" class="search-input" name="search_query" placeholder="Keyword Search...">
+    <label for="search_query" class="inline" style="margin-right:10px;">Search </label>
+    <input type="text" class="search-input" name="search_query" placeholder="Keyword Search..." value="{{search}}">
     <button class="btn btn-success">Search</button>
   </div>
 
 
   <div class="btn-group">
     <label for="type" class="inline" style="margin-right:10px;">Type</label>
-    <select type="button" name="type" style="height:35px; align-items:center;" class="btn btn-primary dropdown-toggle"
+    <select id="typeDropdown" type="button" name="type" style="height:35px; align-items:center;" class="btn btn-primary dropdown-toggle"
       data-toggle="dropdown" aria-haspopup="true">
       <div class="dropdown-menu">
       <option class=" dropdown-item" name="drop" value="">Any Type</option>
@@ -44,7 +44,7 @@
 
   <div class="btn-group">
     <label for="majors" class="inline" style="margin-left:10px; ">Major</label><br>
-    <select type="button" name="major" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
+    <select id="majorDropdown" type="button" name="major" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
     class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
       <div class="dropdown-menu" name="majordrop">
       <option class=" dropdown-item" name="drop" value="">Any Major</option>
@@ -58,7 +58,7 @@
 
   <div class="btn-group">
     <label for="tentative-date" class="inline"">Date</label><br>
-    <select type="button" name="dateorder" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
+    <select id="dateDropdown" type="button" name="dateorder" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
     class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
       <div class="dropdown-menu" name="datedrop">
       <option class=" dropdown-item" name="drop" value="">Any Tentative Date</option>
@@ -71,8 +71,6 @@
   <!-- <input type="submit" value="Filter" /> -->
 </form>
 
-
-
 <div class="stream-container">
   {% if posts %}
   {% for post in posts %}
@@ -80,7 +78,7 @@
     <div class="post-block">
       <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %} 
         {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
-      {% if post.major1 %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
+      {% if post.major1 %}<span class="badge badge-pill badge-primary" >{{post.major}}</span>{% endif %}
       {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
         style="margin-left:12px;">{{post.major2_minor}}</span>{% endif %}
       {% if post.id == session['id'] %}
@@ -97,7 +95,7 @@
 
     <p>{{post.description}}</p>
     <div class="post-block">
-      <p class="inline">{% if post.date %}Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
+      <p class="inline">{% if post.date %} Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
       <p class="inline" style="margin-left: 20px;">{% if post.location %}Location: {{post.location}} {% endif %}</p>
       <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}On-campus: {{post.on_campus}} {% endif %}</p>
 
@@ -141,5 +139,49 @@
     dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'block' : 'none';
   }
   
+  // Function to automatically select the type for the type dropdown
+  document.addEventListener('DOMContentLoaded', function() {
+      var typeValue = "{{type}}"; 
+
+      var typeDropdown = document.getElementById('typeDropdown');
+      var options = typeDropdown.options;
+
+      for (var i = 0; i < options.length; i++) {
+          if (options[i].value === typeValue) {
+              options[i].selected = true;
+              break;
+          }
+      }
+  });
+
+  // Function to automatically select the major for the major dropdown
+  document.addEventListener('DOMContentLoaded', function() {
+      var majorValue = "{{major}}"; 
+
+      var majorDropdown = document.getElementById('majorDropdown');
+      var options = majorDropdown.options;
+
+      for (var i = 0; i < options.length; i++) {
+          if (options[i].value === majorValue) {
+              options[i].selected = true;
+              break;
+          }
+      }
+  });
+
+  // Function to automatically select the dateorder for the date_order dropdown
+  document.addEventListener('DOMContentLoaded', function() {
+      var dateValue = "{{date_order}}"; 
+
+      var dateDropdown = document.getElementById('dateDropdown');
+      var options = dateDropdown.options;
+
+      for (var i = 0; i < options.length; i++) {
+          if (options[i].value === dateValue) {
+              options[i].selected = true;
+              break;
+          }
+      }
+  });
 </script>
 {% endblock %}

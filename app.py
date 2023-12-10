@@ -44,7 +44,11 @@ def index():
     '''
     This renders to login page for users to sign in when they load the website 
     '''
-    return render_template('login.html',title='Login Page')
+    if 'id' in session: 
+        # If the session hasn't expired, the stream page should be loaded 
+        return redirect(url_for('stream'))
+    else:
+        return render_template('login.html',title='Login Page')
 
 @app.route('/main/')
 def main():
@@ -61,6 +65,9 @@ def stream():
     filters the posts first with the indicated filters before returning them
     '''
     conn = dbi.connect()
+    type = ''
+    date_order = ''
+    search_query = ''
     if request.method == 'GET':
         posts = helper.get_posts(conn)     
     if request.method == 'POST':
@@ -93,6 +100,9 @@ def stream():
             posts = sorted(posts, key=lambda x:x['date'])
         elif date_order == 'late':
             posts = sorted(posts, key=lambda x:x['date'], reverse=True)
+        
+        # To let the user know that posts have been filtered
+        flash('Filters have been applied') 
 
     # reformatting for display purposes and slicing for database purposes
     for post in posts:
@@ -103,11 +113,11 @@ def stream():
         post['tag'] = post['tag'].replace('_', ' ')
         if post['major2_minor']:
             post['major2_minor'] = post['major2_minor'].replace('_', ' ')
-        if len(post['description']) > 75: # If the description is too long, cut it short
+        if len(post['description']) > 100: # If the description is too long, cut it short
             post['description'] = post['description'][:100] + '...'
         
     return render_template('stream.html',
-                            title='Stream - Coursebridge', posts = posts, majors=["Computer Science"])
+                            title='Stream - Coursebridge', posts = posts, majors=["Computer Science"], type=type, date_order=date_order, search=search_query)
 
 
 def get_time_difference(timestamp):
@@ -133,7 +143,7 @@ def get_time_difference(timestamp):
 @app.route('/create/', methods=['GET', 'POST'])
 def create_post():
     '''
-    For creating the post; calls helper.add() to insert a new post, get and post
+    Method for creating the post; calls helper.add() to insert a new post, get and post
     '''
 
     if request.method == 'GET':
@@ -145,8 +155,7 @@ def create_post():
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-        # Handling the case where the session expires while the user
-        # is in the midst of creating a post
+        # Handling the case where the session expired somehow
         if 'id' in session:
             id = session['id']
 
@@ -205,13 +214,14 @@ def create_profile():
 
             # Bring first-time users to the welcome/main page
             return redirect(url_for('main'))
+        
         except Exception as err:
             flash('Upload failed {why}'.format(why=err))
             return render_template('profile_form.html',src='',nm='')
         
       
 
-# Will likely use a variant of this function for alpha
+# Will likely use a variant of this function for beta
 # @app.route('/pic/<nm>')
 # def pic(nm):
 #     conn = dbi.connect()
@@ -280,6 +290,7 @@ def request_ph(pid):
 @app.route('/update/<pid>', methods=["GET", "POST"])
 def update_post(pid):
     '''
+    Inputs: pid, postId
     Method for getting the update post page and also updating the post
     '''
     conn = dbi.connect()
@@ -437,32 +448,27 @@ def login():
             return redirect( url_for('index'))
 
 
-
-
-@app.route('/user/<username>')
-def user(username):
-    """
-    Page that displays user information
-    This is for alpha round -- ignore for now 
-    """
-    try: 
-        username = session['username']
-        if 'username' in session: 
-            username = session['username']
-            id = session['id']
-            session['visits'] = int(session['visits']) + 1
-            return render_template('greet.html', title = 'Welcome!')
-    except Exception as err:
-        flash("Error" + str(err))
-        return redirect( url_for('index'))
-
-
-@app.route('/profile/') # methods="POST"?? 
-def profile():
+@app.route('/profile/<id>', methods=['GET', 'POST']) # methods="POST"?? 
+def profile(id):
     conn = dbi.connect()
-    user_info = helper.get_user_info(conn, session['id'])
+    id = int(id)
+    if request.method == 'GET':
+        user_info = helper.get_user_info(conn, id)
+        phnum_requests_received = helper.get_phone_requests_received(conn, id)
+        for item in phnum_requests_received:
+            item['major1'] = item['major1'].replace('_', ' ')
+        phnum_requests_made = helper.get_phone_requests_made(conn, id)
+        for item in phnum_requests_made:
+            item['major1'] = item['major1'].replace('_', ' ')
 
-    return render_template('profile.html', user_info = user_info, title="Profile - Coursebridge")
+
+        return render_template('profile.html', user_info = user_info, 
+                                title="Profile - Coursebridge", phnum_requests_received=phnum_requests_received,
+                                phnum_requests_made=phnum_requests_made, id=id)
+    else:
+        sid = request.form['phnum_sid']
+        helper.accept_phone_req(conn, id, sid) 
+        return redirect(url_for('profile'))
 
 @app.route('/accounts/')
 def accounts():
