@@ -212,7 +212,7 @@ nav {
 
 .filter {
     padding: 5px;
-    width: 700px;
+    width: 720px;
     border: 2px solid rgb(46, 4, 88);
     border-radius: 5px;
 }
@@ -296,7 +296,6 @@ ul {
 /* li {
     color: #dc3545;
 } */
-
 
 
 .comment-container {
@@ -443,4 +442,20 @@ ul {
     width: 220px;
     display: inline;
     align-items: center;
+}
+
+.custom-badge {
+    background-color:#03115b;
+}
+
+.badge.badge-pill.badge-primary {
+    background-color:#092199;
+}
+
+.badge.badge-info {
+    background-color:#03515c
+}
+
+.btn.btn-primary.dropdown-toggle {
+    background-color:#0056b3;
 }
