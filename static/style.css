@@ -153,7 +153,6 @@ button {
     border-radius: 8px;
     margin-top: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    /* width: 80%; */
     display: inline-block;
     justify-content: space-between;
     width: 98%;
@@ -381,7 +380,7 @@ ul {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 5px;
-    width: 60%;
+    width: auto;
 
     display: flex;
 
@@ -439,7 +438,7 @@ ul {
 }
 
 .fixed {
-    width: 220px;
+    width: 25%;
     display: inline;
     align-items: center;
 }
