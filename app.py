@@ -264,7 +264,8 @@ def display_post(pid):
         # Check if the phone number is already requested
         phnum_req = helper.check_request_ph(conn, id, sid)
         
-        return render_template('display_post.html', title='Display Post - Coursebridge', post=post, pid=pid, comments=comments, phnum_request=phnum_req)
+        return render_template('display_post.html', title='Display Post - Coursebridge', 
+                        post=post, pid=pid, comments=comments, phnum_request=phnum_req)
         
     else: # Post request for commenting
         new_comment = request.form.get("comment")
@@ -448,13 +449,24 @@ def login():
             return redirect( url_for('index'))
 
 
-@app.route('/profile/<id>', methods=['GET', 'POST']) # methods="POST"?? 
+@app.route('/profile/<id>', methods=['GET', 'POST']) 
 def profile(id):
+    """
+    Input: user id 
+    Displays user profile along with the information they put in 
+    when they created the profile. 
+    """
     conn = dbi.connect()
     id = int(id)
     if request.method == 'GET':
         user_info = helper.get_user_info(conn, id)
         phnum_requests_received = helper.get_phone_requests_received(conn, id)
+
+        # deletes the underscores when displaying majors 
+        user_info["major1"] = user_info['major1'].replace('_', ' ')
+        if user_info['major2_minor']: 
+            user_info["major2_minor"] = user_info['major2_minor'].replace('_', ' ')
+            
         for item in phnum_requests_received:
             item['major1'] = item['major1'].replace('_', ' ')
         phnum_requests_made = helper.get_phone_requests_made(conn, id)
@@ -475,8 +487,6 @@ def profile(id):
             if len(post['description']) > 100: # If the description is too long, cut it short
                 post['description'] = post['description'][:100] + '...'
 
-        
-
         return render_template('profile.html', user_info = user_info, 
                                 title="Profile - Coursebridge", phnum_requests_received=phnum_requests_received,
                                 phnum_requests_made=phnum_requests_made, id=id, posts=posts)
@@ -487,12 +497,21 @@ def profile(id):
 
 @app.route('/accounts/')
 def accounts():
+    """
+    Displays a list of all users, including their profile picture, 
+    email address, majors, and a link to their profile. 
+    """ 
     conn = dbi.connect()
     accounts = helper.get_accounts(conn)
 
+    # deletes the underscores when displaying majors 
+    for account in accounts: 
+        if account["major1"]: 
+            account["major1"] = account['major1'].replace('_', ' ')
+        if account["major2_minor"]:
+            account["major2_minor"] = account['major2_minor'].replace('_', ' ')
+
     return render_template('accounts.html', title="Accounts", all_users = accounts)
-
-
 
 
 if __name__ == '__main__':
