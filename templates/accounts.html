@@ -1,5 +1,3 @@
-
-
 {% extends "base.html" %}
 
 {% block content %}
@@ -8,13 +6,19 @@
     {% for user in all_users %}
       <li class="accounts">
         {% if user.profile_pic %}
-          <img class="accounts-picture" src="{{url_for('static', filename='uploads/'+user.profile_pic)}}">
+          <img class="accounts-picture" src="{{url_for('static', filename='uploads/'+user.profile_pic)}}"
+                                    alt="{{ user.name }}'s profile picture">
+          &nbsp &nbsp
+          {% else %}
+          <img class="accounts-picture" src="{{ url_for('static', filename='uploads/10.jpeg')}}"
+                                      alt="profile picture">
+          &nbsp &nbsp
         {% endif %}
-        <span class="name">{{ user.name}}: </span>  
-        <span class="email-address">{{ user.email_address }} &nbsp &nbsp &nbsp</span>  
-        <span class="major1">{{ user.major1 }}</span>
+        <span class="fixed">{{ user.name}}: </span>  
+        <span class="fixed">{{ user.email_address }} &nbsp &nbsp &nbsp</span>  
+        <span class="fixed">{{ user.major1 }} &nbsp &nbsp &nbsp </span>
         {% if major2_minor %} 
-          <span class="major2_minor"> & {{ user.major2_minor }}</span>
+          <span class="fixed"> & {{ user.major2_minor }}</span>
         {% endif %}
         <a href="{{url_for('profile', id=user.id)}}">View User's Profile</a>
       </li>

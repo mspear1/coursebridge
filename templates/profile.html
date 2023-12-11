@@ -3,23 +3,23 @@
 {% block title %}User Profile - {{ session['username'] }}{% endblock %}
 
 {% block content %}
+  <div class="profile-container">
   <h2>{{ user_info.name }}'s Profile</h2>
   <div>
     {% if user_info.profile_pic %}
-      <img class="profile-picture" src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}">
+      <img class="profile-picture" src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}"
+                                    alt="{{ user_info.name }}'s profile picture">
 
     {% endif %}
     <!-- <h2>{{ user_info.name }}'s Profile</h2> -->
-    <p>Name: {{ user_info.name }}</p>
-    <p>Username: {{ user_info.email_address }}</p>
-    <p>Email: {{ user_info.email_address }}</p>
+    <p><b>Name:</b> {{ user_info.name }}</p>
+    <p><b>Email:</b> {{ user_info.email_address }}</p>
     {% if id == session['id'] %}
-    <p>Phone Number: {{ user_info.phone_num }}</p>
+    <p><b>Phone Number:</b> {{ user_info.phone_num }}</p>
     {% endif %}
-    <p>Major1: {{ user_info.major1 }}</p>
-    <p>Major2/Minor: {{ user_info.major2_minor }}</p>
-    <p>Major2/Minor: {{ user_info.major2_minor }}</p>
-    <p>Dorm: {{ user_info.dorm }}</p>
+    <p><b>Major1:</b> {{ user_info.major1 }}</p>
+    <p><b>Major2/Minor:</b> {{ user_info.major2_minor }}</p>
+    <p><b>Dorm:</b> {{ user_info.dorm_hall }}</p>
     
 
   </div>
@@ -68,6 +68,7 @@
       {% endfor %}
     </div>
 
+  </div>
   </div>
   {% endif %}
 {% endblock %}

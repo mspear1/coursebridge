@@ -254,10 +254,12 @@ def check_request_ph(conn, id, sid):
 
 def get_accounts(conn):
     '''
-    Gets all users' accounts. 
+    Gets all users' accounts with information such as 
+    id, name, email_address, major1, major2/minor, profile pics, and dorms
     '''
     curs = dbi.dict_cursor(conn)
-    curs.execute('''select id, name, email_address, major1, major2_minor, profile_pic from student''') 
+    curs.execute('''select id, name, email_address, major1, major2_minor, 
+                profile_pic, dorm_hall from student''') 
     return curs.fetchall()
 
 def get_phone_requests_received(conn, id):
