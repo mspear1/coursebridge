@@ -70,4 +70,47 @@
 
   </div>
   {% endif %}
+
+
+<div class="profile-stream-container">
+  {% if posts %}
+  <h2>Posts by {{ user_info.name }}</h2>
+  {% for post in posts %}
+  <div class="post-container">
+    <div class="post-block">
+      <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %} 
+        {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
+      {% if post.major1 %}<span class="badge badge-pill badge-primary" >{{post.major}}</span>{% endif %}
+      {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
+        style="margin-left:12px;">{{post.major2_minor}}</span>{% endif %}
+      {% if post.id == session['id'] %}
+      <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Post</a></span>
+      {% endif %}
+      <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
+
+    </div>
+
+    <div class="post-block">
+      <span class="custom-badge">{{post.tag}}</span>
+      <h5 class="inline">{{post.title}}</h5>
+    </div>
+
+    <p>{{post.description}}</p>
+    <div class="post-block">
+      <p class="inline">{% if post.date %} Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
+      <p class="inline" style="margin-left: 20px;">{% if post.location %}Location: {{post.location}} {% endif %}</p>
+      <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}On-campus: {{post.on_campus}} {% endif %}</p>
+
+
+      {% if post.professor %}<span class="badge badge-info">{{post.professor}} </span>{% endif %}
+      {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{%
+      endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p>No results found</p>
+  {% endif %}
+</div>
+
 {% endblock %}
