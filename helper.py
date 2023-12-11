@@ -113,6 +113,19 @@ def get_posts(conn):
                     where post.sid is not NULL and post.sid = student.id;''')
     return curs.fetchall()
 
+def get_user_posts(conn, student_ID):
+    '''
+    Retrieves posts for a specific user's account page
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select student.name as studentname, student.major1 as major, 
+                    student.major2_minor as major2_minor, student.id as id, title, description, 
+                    timestamp, location, on_campus, tag, professor, class, date, status, pid
+                    from post, student 
+                    where post.sid is not NULL and post.sid = student.id and student.id = %s;''', [student_ID])
+    return curs.fetchall()
+
+
 def filter_posts(conn, type):
     '''
     Filters posts based on criteron and returns

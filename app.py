@@ -473,9 +473,23 @@ def profile(id):
         for item in phnum_requests_made:
             item['major1'] = item['major1'].replace('_', ' ')
 
+        posts = helper.get_user_posts(conn, id)
+        posts = sorted(posts, key=lambda x:x['date']) # sort early-oldest
+
+        for post in posts:
+            if post['timestamp']:   
+                post['timestamp'] = get_time_difference(post['timestamp'])
+            if post['major']:
+                post['major'] = post['major'].replace('_', ' ')
+            post['tag'] = post['tag'].replace('_', ' ')
+            if post['major2_minor']:
+                post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+            if len(post['description']) > 100: # If the description is too long, cut it short
+                post['description'] = post['description'][:100] + '...'
+
         return render_template('profile.html', user_info = user_info, 
                                 title="Profile - Coursebridge", phnum_requests_received=phnum_requests_received,
-                                phnum_requests_made=phnum_requests_made, id=id)
+                                phnum_requests_made=phnum_requests_made, id=id, posts=posts)
     else:
         sid = request.form['phnum_sid']
         helper.accept_phone_req(conn, id, sid) 
