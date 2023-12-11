@@ -6,11 +6,11 @@ from datetime import datetime
 # This file is to hold functions that execute queries.
 # These functions are called in app.py.
 
-def add_post(conn, form, time, sid):
-    ''' Adds a new post to the database and commits
+def validate(form):
     '''
-    # Parsing form entries and cutting off entries that are too long 
-    # in case post request is not sent through the web interface
+    Input: Post form
+    Helper function for shortening form entries as needed
+    '''
     title = form['title']
     if title and len(title) > 30:
         title = title[:30]
@@ -30,7 +30,16 @@ def add_post(conn, form, time, sid):
         course = course[:8]
     date = form.get('date')  
     date = datetime.strptime(date, '%m-%d-%Y') # re-formatted the date so sql will accept it
-    # timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S') if date else None
+    return title, description, location, oncampus, tag, professor, course, date
+
+
+def add_post(conn, form, time, sid):
+    ''' 
+    Adds a new post to the database and commits
+    '''
+    # Parsing form entries and cutting off entries that are too long 
+    # in case post request is not sent through the web interface
+    title, description, location, oncampus, tag, professor, course, date = validate(form)
     curs = dbi.dict_cursor(conn)
 
     curs.execute('''insert into post(title, description, timestamp, location, 
@@ -47,26 +56,8 @@ def update_post(conn, form, time, pid):
     ''' 
     # Parsing form entries and cutting off entries that are too long 
     # in case post request is not sent through the web interface
-    title = form['title']
-    if title and len(title) > 30:
-        title = title[:30]
-    description = form['description']
-    if description and len(description) > 500:
-        description = description[:500]
-    location = form['location']
-    oncampus = form['oncampus']
-    if location and len(location) > 50:
-        location = location[:50]
-    tag = form['tag']
-    professor = form.get('professor', None) # default is None
-    if professor and len(professor) > 50:
-        professor = professor[:50]
-    course = form.get('class', None)
-    if course and len(course) > 8:
-        course = course[:8]
-        
-    date = form.get('date')  
-    date = datetime.strptime(date, '%m-%d-%Y') # re-format the date so sql will accept it
+    title, description, location, oncampus, tag, professor, course, date = validate(form)
+
     curs = dbi.dict_cursor(conn)
     
     # Don't update timestamp for now, may change for alpha
@@ -89,7 +80,7 @@ def delete_post(conn, pid):
 
 def get_postinfo(conn, pid):
     '''
-    Retrieve the post information given the pid
+    Retrieve the post information given the pid and return as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select student.name as studentname, student.major1 as major, 
@@ -103,7 +94,7 @@ def get_postinfo(conn, pid):
     
 def get_posts(conn):
     '''
-    Retrieves posts with information for the stream page and returns them
+    Retrieves posts with information for the stream page and returns them as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select student.name as studentname, student.major1 as major, 
@@ -115,27 +106,29 @@ def get_posts(conn):
 
 def get_user_posts(conn, student_ID):
     '''
-    Retrieves posts for a specific user's account page
+    Retrieves posts for a specific user's account page and returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select student.name as studentname, student.major1 as major, 
                     student.major2_minor as major2_minor, student.id as id, title, description, 
                     timestamp, location, on_campus, tag, professor, class, date, status, pid
                     from post, student 
-                    where post.sid is not NULL and post.sid = student.id and student.id = %s;''', [student_ID])
+                    where post.sid is not NULL and post.sid = student.id and student.id = %s;'''
+                    , [student_ID])
     return curs.fetchall()
 
 
 def filter_posts(conn, type):
     '''
-    Filters posts based on criteron and returns
+    Filters posts based on criteron and returns the filtered ones as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select student.name as studentname, student.major1 as major, 
                     student.major2_minor as major2_minor, student.id as id, title, description, 
                     timestamp, location, on_campus, tag, professor, class, date, status, pid
                     from post, student 
-                    where post.sid is not NULL and post.sid = student.id and tag = %s;''', [type])
+                    where post.sid is not NULL and post.sid = student.id and tag = %s;'''
+                    , [type])
     return curs.fetchall()
 
 def search(conn, search_query):
@@ -152,7 +145,8 @@ def search(conn, search_query):
                     from post, student 
                     where post.sid is not NULL and post.sid = student.id'''
     for i in search:
-        sql_query += ''' and (title LIKE %s OR description LIKE %s) ''' # check within title and description for each item
+        # check within title and description for each item
+        sql_query += ''' and (title LIKE %s OR description LIKE %s) ''' 
     sql_query += ''';'''
 
     # make each item appear 2 times for each %s placeholder
@@ -198,7 +192,7 @@ def add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
 
 def get_user_info(conn, id):
     '''
-    Gets the user's name given the id, may be null
+    Gets the user's information given the id and returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select name, phone_num, email_address, major1, 
@@ -209,7 +203,7 @@ def get_user_info(conn, id):
 def get_post_comments(conn, postid):
     '''
     Inputs: The postid (pid)
-    Gets the comments for a post given the postid
+    Gets the comments for a post given the postid and returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select description, sid, timestamp, pid,
@@ -222,7 +216,8 @@ def get_post_comments(conn, postid):
 def get_poster_sid(conn, pid):
     '''
     Inputs: post id (pid)
-    Gets the original poster's sid, for making a phone request
+    Gets the original poster's sid, for making a phone request, 
+    returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select sid from post
@@ -234,7 +229,7 @@ def get_poster_sid(conn, pid):
 def insert_comment(conn, comment, sid, time, pid):
     '''
     Inputs: comment, student id (sid) of commenter, timestamp, post id (pid)
-    Inserts the user comment into the database
+    Inserts the user comment into the database and commits
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''insert into comment(description, sid, timestamp, pid)
@@ -257,7 +252,7 @@ def check_request_ph(conn, id, sid):
     '''
     Inputs: id of requester, id of approver 
     Checks if the user already requested the poster's phone number,
-    to not display the request phone number
+    returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select * from phnum where
@@ -268,7 +263,8 @@ def check_request_ph(conn, id, sid):
 def get_accounts(conn):
     '''
     Gets all users' accounts with information such as 
-    id, name, email_address, major1, major2/minor, profile pics, and dorms
+    id, name, email_address, major1, major2/minor, profile pics, and dorms,
+    returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select id, name, email_address, major1, major2_minor, 
@@ -278,7 +274,8 @@ def get_accounts(conn):
 def get_phone_requests_received(conn, id):
     '''
     Inputs: id of user
-    Gets all the phone number requests that the user received along with requester info 
+    Gets all the phone number requests that the user received along with requester info,
+    returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select requester, approver, approved,
@@ -290,7 +287,8 @@ def get_phone_requests_received(conn, id):
 def get_phone_requests_made(conn, id):
     '''
     Inputs: id of user
-    Gets all the phone number requests that the user made along with approver info 
+    Gets all the phone number requests that the user made along with approver info,
+    returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select requester, approver, approved,

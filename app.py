@@ -192,26 +192,19 @@ def create_profile():
             major1 = request.form['major1']
             major2_minor = request.form['major2_minor']
             dorm = request.form['dorm']
+            
+            if f: 
+                helper.upload_profile_pic(conn, id, filename)
 
-            # Handling the case where the session expires while the user
-            # is in the midst of creating a profile
-            if 'id' in session:
-                # upload file if it exists
-                if f: 
-                    helper.upload_profile_pic(conn, id, filename)
+            helper.add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
+            # To get name to display on nav bar after creating a profile
+            user_name = helper.get_user_info(conn, id)['name']
+            session['name'] = user_name
 
-                helper.add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
-                # To get name to display on nav bar after creating a profile
-                user_name = helper.get_user_info(conn, id)['name']
-                session['name'] = user_name
-
-                # To get phone_num to display
-                session['phone_num'] = phnumber
-                flash('Profile Created!')
-            else:
-                flash('Sorry, your session has expired. Please login again.')
-                redirect(url_for('login'))
-
+            # To get phone_num to display
+            session['phone_num'] = phnumber
+            flash('Profile Created!')
+           
             # Bring first-time users to the welcome/main page
             return redirect(url_for('main'))
         
@@ -528,4 +521,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0')
+    app.run('0.0.0.0', port)
