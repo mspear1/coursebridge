@@ -118,17 +118,30 @@ def get_user_posts(conn, student_ID):
     return curs.fetchall()
 
 
-def filter_posts(conn, type):
+def filter_posts(conn, type, major):
     '''
     Filters posts based on criteron and returns the filtered ones as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
-    curs.execute('''select student.name as studentname, student.major1 as major, 
+
+    query = '''select student.name as studentname, student.major1 as major, 
                     student.major2_minor as major2_minor, student.id as id, title, description, 
                     timestamp, location, on_campus, tag, professor, class, date, status, pid
                     from post, student 
-                    where post.sid is not NULL and post.sid = student.id and tag = %s;'''
-                    , [type])
+                    where post.sid is not NULL and post.sid = student.id'''
+    placeholders = []
+
+    if type:
+        query += ''' and tag = %s'''
+        placeholders.append(type)
+    if major:
+        query += ''' and (student.major1 = %s or student.major2_minor = %s)'''
+        placeholders.append(major)
+        placeholders.append(major)
+    
+    query += ''';'''
+
+    curs.execute(query, placeholders)
     return curs.fetchall()
 
 def search(conn, search_query):
@@ -307,4 +320,47 @@ def accept_phone_req(conn, id, sid):
                     where approver=%s and requester=%s''',
                     ['yes', id, sid])
     conn.commit()
+
+def get_majors():
+    '''
+    Gets a list of all the majors for dropdowns used throughout html files
+    '''
+    majors = [
+        'Undecided', 
+        'Africana_Studies', 
+        'American_Studies', 
+        'Anthropology', 
+        'Art', 
+        'Astronomy', 
+        'Biological_Sciences', 
+        'Chemistry', 
+        'Classical_Civilization', 
+        'Classical_Studies', 
+        'Cognitive_and_Linguistic_Science', 
+        'Computer_Science', 
+        'East_Asian_Languages_and_Cultures', 
+        'Economics', 
+        'Education', 
+        'English_and_Creative_Writing', 
+        'Environmental_Studies', 
+        'French_and_Francophone_Studies', 
+        'Geosciences', 
+        'German_Studies', 
+        'History', 
+        'Italian_Studies', 
+        'Language_Studies_Linguistics', 
+        'Mathematics', 
+        'Music', 
+        'Neuroscience', 
+        'Philosophy', 
+        'Physics', 
+        'Political_Science', 
+        'Psychology', 
+        'Religion', 
+        'Russian', 
+        'Sociology', 
+        'Spanish_and_Portuguese', 
+        'Womens_and_Gender_Studies', 
+        'Other']
     
+    return majors
