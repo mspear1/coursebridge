@@ -35,6 +35,7 @@ def validate(form):
 
 def add_post(conn, form, time, sid):
     ''' 
+    Inputs: form, timestamp, and student id
     Adds a new post to the database and commits
     '''
     # Parsing form entries and cutting off entries that are too long 
@@ -80,6 +81,7 @@ def delete_post(conn, pid):
 
 def get_postinfo(conn, pid):
     '''
+    Inputs: post id 
     Retrieve the post information given the pid and return as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
@@ -106,6 +108,7 @@ def get_posts(conn):
 
 def get_user_posts(conn, student_ID):
     '''
+    Inputs: student id
     Retrieves posts for a specific user's account page and returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
@@ -120,6 +123,7 @@ def get_user_posts(conn, student_ID):
 
 def filter_posts(conn, type, major):
     '''
+    Inputs: type of post, major
     Filters posts based on criteron and returns the filtered ones as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
@@ -146,6 +150,7 @@ def filter_posts(conn, type, major):
 
 def search(conn, search_query):
     '''
+    Inputs: search_query
     Searches through posts, filters out ones without mentioned keywords
     '''
     # split query into separate words to search mentions
@@ -205,6 +210,7 @@ def add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
 
 def get_user_info(conn, id):
     '''
+    Input: user's id
     Gets the user's information given the id and returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
@@ -325,42 +331,13 @@ def get_majors():
     '''
     Gets a list of all the majors for dropdowns used throughout html files
     '''
-    majors = [
-        'Undecided', 
-        'Africana_Studies', 
-        'American_Studies', 
-        'Anthropology', 
-        'Art', 
-        'Astronomy', 
-        'Biological_Sciences', 
-        'Chemistry', 
-        'Classical_Civilization', 
-        'Classical_Studies', 
-        'Cognitive_and_Linguistic_Science', 
-        'Computer_Science', 
-        'East_Asian_Languages_and_Cultures', 
-        'Economics', 
-        'Education', 
-        'English_and_Creative_Writing', 
-        'Environmental_Studies', 
-        'French_and_Francophone_Studies', 
-        'Geosciences', 
-        'German_Studies', 
-        'History', 
-        'Italian_Studies', 
-        'Language_Studies_Linguistics', 
-        'Mathematics', 
-        'Music', 
-        'Neuroscience', 
-        'Philosophy', 
-        'Physics', 
-        'Political_Science', 
-        'Psychology', 
-        'Religion', 
-        'Russian', 
-        'Sociology', 
-        'Spanish_and_Portuguese', 
-        'Womens_and_Gender_Studies', 
-        'Other']
-    
+    majors = ['Undecided', 'Africana_Studies', 'American_Studies', 'Anthropology', 'Art', 'Astronomy', 
+              'Biological_Sciences', 'Chemistry', 'Classical_Civilization', 'Classical_Studies', 
+              'Cognitive_and_Linguistic_Science', 'Computer_Science', 'East_Asian_Languages_and_Cultures',
+              'Economics', 'Education', 'English_and_Creative_Writing', 'Environmental_Studies', 
+              'French_and_Francophone_Studies', 'Geosciences', 'German_Studies', 'History', 'Italian_Studies', 
+              'Language_Studies_Linguistics', 'Mathematics', 'Music', 'Neuroscience', 'Philosophy', 'Physics', 
+              'Political_Science', 'Psychology', 'Religion', 'Russian', 'Sociology', 'Spanish_and_Portuguese', 
+              'Womens_and_Gender_Studies', 'Other']
+
     return majors
