@@ -11,10 +11,11 @@
 {% endblock head_stuff %}
 
 {% block content %}
-{% if session['id']==id %}
+<!--You can only update your own profile-->
+{% if id == session['id'] %}
 
 <!--Name, phone number, major, major2/minor, dorm, profile pic-->
-<form method=post action="{{url_for('update_profile', id=id)}}" style="width:500px; margin-top: 5px; margin-left: 50px;" enctype="multipart/form-data">
+<form method=post action="{{url_for('update_profile', id=id)}}" class="profile-form" enctype="multipart/form-data">
     <div class="form-group">
         <label for="name">Name (Required)</label>
         <input required type="text" class="form-control" name="name" id="name" maxlength="40" placeholder="e.g. Bob Bonn" value="{{user.name}}">

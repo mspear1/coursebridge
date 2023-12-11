@@ -183,16 +183,17 @@ def create_profile():
     if request.method == 'GET':
         majors_list = [[i,i.replace("_"," ")] for i in helper.get_majors()]
 
-        return render_template('profile_form.html', title="Create Profile - Coursebridge", majors=majors_list,)
+        return render_template('profile_form.html', title="Create Profile - Coursebridge", majors=majors_list)
     else:
         try:
             id = int(session['id'])
             f = request.files['pic']
             user_filename = f.filename
-            ext = user_filename.split('.')[-1]
-            filename = secure_filename('{}.{}'.format(id,ext))
-            pathname = os.path.join(app.config['UPLOADS'],filename)
-            f.save(pathname)
+            if user_filename: # If the user uploaded a picture
+                ext = user_filename.split('.')[-1]
+                filename = secure_filename('{}.{}'.format(id,ext))
+                pathname = os.path.join(app.config['UPLOADS'],filename)
+                f.save(pathname)
             conn = dbi.connect()
 
             name = request.form['name']
@@ -230,13 +231,15 @@ def update_profile(id):
     inserts the form information into database for POST
     '''
     conn = dbi.connect()
+    id = int(id)
 
     if request.method == 'GET':
         majors_list = [[i,i.replace("_"," ")] for i in helper.get_majors()]
 
         user_info = helper.get_user_info(conn, id)
 
-        return render_template('update_profile_form.html', id=id, title="Update Profile - Coursebridge", majors=majors_list, user=user_info)
+        return render_template('update_profile_form.html', title="Update Profile - Coursebridge", 
+                                majors=majors_list, user=user_info, id=id)
     else:
         try:
             id = int(session['id'])
@@ -273,8 +276,7 @@ def update_profile(id):
                 flash('Sorry, your session has expired. Please login again.')
                 redirect(url_for('login'))
 
-            # Bring first-time users to the welcome/main page
-            return redirect(url_for('main'))
+            return redirect(url_for('profile', id=id))
         
         except Exception as err:
             flash('Upload failed {why}'.format(why=err))
@@ -331,7 +333,9 @@ def display_post(pid):
         new_comment = request.form.get("comment")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M") # Get current time
         helper.insert_comment(conn, new_comment, id, timestamp, pid)
-        return redirect(url_for('display_post', pid=pid)) # Return back to the page after inserting the comment
+
+        # Return back to the page after inserting the comment
+        return redirect(url_for('display_post', pid=pid)) 
 
  
 
@@ -396,8 +400,9 @@ def logout():
     if they were logged in. 
     '''
     if 'username' in session:
-        username = session['username']
+        #username = session['username']
         session.pop('username')
+        session.pop('name')
         session.pop('id')
         session.pop('logged_in')
         flash('You are logged out')
@@ -548,14 +553,13 @@ def profile(id):
                 post['major2_minor'] = post['major2_minor'].replace('_', ' ')
             if len(post['description']) > 100: # If the description is too long, cut it short
                 post['description'] = post['description'][:100] + '...'
-
         return render_template('profile.html', user_info = user_info, 
                                 title="Profile - Coursebridge", phnum_requests_received=phnum_requests_received,
                                 phnum_requests_made=phnum_requests_made, id=id, posts=posts)
     else:
         sid = request.form['phnum_sid']
         helper.accept_phone_req(conn, id, sid) 
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', id=id))
 
 @app.route('/accounts/')
 def accounts():

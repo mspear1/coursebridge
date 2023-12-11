@@ -10,7 +10,7 @@
 {% block content %}
   <div class="profile-container">
     {% if session['id']==id %}
-    <span class="badge edit"><a href="{{url_for('update_profile', id=id)}}">Edit Profile</a></span>
+    <span class="badge edit" style="font-size:20px;"><a href="{{url_for('update_profile', id=id)}}">Edit Profile</a></span>
     {% endif %}
   <h2><b>{{ user_info.name }}'s Profile</b></h2>
   <div>
@@ -38,12 +38,12 @@
       {% for phnum in phnum_requests_received %}
         {% if phnum.approved == 'no' %}
         <li>
-          <form method="post" action="{{ url_for('profile') }}">
+          <form method="post" action="{{ url_for('profile', id=id) }}">
             <input type="hidden" name="phnum_sid" value="{{ phnum.requester }}">
             <div class="container">
               <p class="inline">{{phnum.name}} &nbsp {{phnum.major1}}</p>
               
-              <button type="submit" style="font-size:15px;">Approve Request</button>
+              <button type="submit" style="font-size:15px; margin-left:10px;">Approve Request</button>
             </div>
           </form>
         </li>
@@ -84,15 +84,15 @@
   {% if posts %}
   <h2>Posts by {{ user_info.name }}</h2>
   {% for post in posts %}
-  <div class="post-container" style="width:60%;">
+  <div class="post-container" style="width:70%;">
     <div class="post-block">
       <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %} 
-        {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
+      {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
       {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
       {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
-        style="margin-left:12px;">{{post.major2_minor}}</span>{% endif %}
+        style="margin-right:8px;">{{post.major2_minor}}</span>{% endif %}
       {% if post.id == session['id'] %}
-      <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Post</a></span>
+      <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
       {% endif %}
       <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
 
@@ -117,7 +117,7 @@
   </div>
   {% endfor %}
   {% else %}
-  <p>No results found</p>
+  <p>No posts found</p>
   {% endif %}
 </div>
 

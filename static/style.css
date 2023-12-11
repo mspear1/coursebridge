@@ -406,6 +406,7 @@ ul {
     padding: 10px;
     margin: 10px;
     border-radius: 5px;
+    width: 90%;
   }
 
 .accounts-picture {
@@ -457,4 +458,15 @@ ul {
 
 .btn.btn-primary.dropdown-toggle {
     background-color:#0056b3;
+}
+
+.badge.edit {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.profile-form {
+    width:500px; 
+    margin-top: 5px; 
+    margin-left: 50px;
 }
