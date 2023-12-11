@@ -210,6 +210,26 @@ def add_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
                     [name, phnumber, major1, major2_minor, dorm, id])
     conn.commit()
 
+def update_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
+    '''
+    Inputs: name, phnumber, major1, major2_minor, dorm, id of user
+    Updates the user's profile information in the database
+    '''
+    # Parsing form entries and cutting off entries that are too long 
+    # in case post request is not sent through the browser
+    if name and len(name) > 40:
+        name = name[:40]
+    if phnumber and len(phnumber) > 12:
+        phnumber= phnumber[:12]
+    if dorm and len(dorm) > 20:
+        dorm = dorm[:20]
+    curs = dbi.dict_cursor(conn)
+    
+    curs.execute('''update student set name = %s, phone_num = %s, major1 = %s, 
+                    major2_minor = %s, dorm_hall = %s where id = %s''', 
+                    [name, phnumber, major1, major2_minor, dorm, id])
+    conn.commit()
+
 def get_user_info(conn, id):
     '''
     Gets the user's name given the id, may be null
