@@ -11,7 +11,7 @@
 {% block content %}
 
 <!--Name, phone number, major, major2/minor, dorm, profile pic-->
-<form method=post action="{{url_for('create_profile')}}" style="width:500px; margin-top: 5px; margin-left: 50px;" enctype="multipart/form-data">
+<form method=post action="{{url_for('create_profile')}}" class="profile-form" enctype="multipart/form-data">
     <div class="form-group">
         <label for="name">Name (Required)</label>
         <input required type="text" class="form-control" name="name" id="name" maxlength="40" placeholder="e.g. Bob Bonn">
@@ -53,7 +53,8 @@
     <p>Last upload: {{nm}}</p>
     <p> <img src="{{src}}"></p>
     {% endif %} -->
-    <button type="submit" style="margin-top: 10px;" class="btn btn-primary" value="Create Profile" style="display: block">Create Profile</button>
+    <button type="submit" style="margin-top: 10px;" class="btn btn-primary" value="Create Profile" 
+            style="display: block">Create Profile</button>
 
 </form>
 
