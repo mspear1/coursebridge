@@ -122,7 +122,8 @@ def stream():
     majors_list = [[i,i.replace("_"," ")] for i in helper.get_majors()]
         
     return render_template('stream.html', 
-                            title='Stream - Coursebridge', posts = posts, majors=majors_list, type=type, major=major, date_order=date_order, search=search_query)
+                            title='Stream - Coursebridge', posts = posts, majors=majors_list, type=type,
+                            major=major, date_order=date_order, search=search_query)
 
 
 def get_time_difference(timestamp):
@@ -219,6 +220,65 @@ def create_profile():
             flash('Upload failed {why}'.format(why=err))
             return render_template('profile_form.html',src='',nm='')
         
+
+
+@app.route('/updateprofile/<id>', methods=["GET", "POST"])
+def update_profile(id):
+    '''
+    Method for updating the user's profile
+    Renders the profile form for GET, 
+    inserts the form information into database for POST
+    '''
+    conn = dbi.connect()
+
+    if request.method == 'GET':
+        majors_list = [[i,i.replace("_"," ")] for i in helper.get_majors()]
+
+        user_info = helper.get_user_info(conn, id)
+
+        return render_template('update_profile_form.html', id=id, title="Update Profile - Coursebridge", majors=majors_list, user=user_info)
+    else:
+        try:
+            id = int(session['id'])
+            f = request.files['pic']
+            user_filename = f.filename
+            ext = user_filename.split('.')[-1]
+            filename = secure_filename('{}.{}'.format(id,ext))
+            pathname = os.path.join(app.config['UPLOADS'],filename)
+            f.save(pathname)
+            conn = dbi.connect()
+
+            name = request.form['name']
+            phnumber = request.form['phonenum']
+            major1 = request.form['major1']
+            major2_minor = request.form['major2_minor']
+            dorm = request.form['dorm']
+
+            # Handling the case where the session expires while the user
+            # is in the midst of creating a profile
+            if 'id' in session:
+                # upload file if it exists
+                if f: 
+                    helper.upload_profile_pic(conn, id, filename)
+
+                helper.update_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
+                # To get name to display on nav bar after creating a profile
+                user_name = helper.get_user_info(conn, id)['name']
+                session['name'] = user_name
+
+                # To get phone_num to display
+                session['phone_num'] = phnumber
+                flash('Profile Updated!')
+            else:
+                flash('Sorry, your session has expired. Please login again.')
+                redirect(url_for('login'))
+
+            # Bring first-time users to the welcome/main page
+            return redirect(url_for('main'))
+        
+        except Exception as err:
+            flash('Upload failed {why}'.format(why=err))
+            return render_template('profile_form.html',src='',nm='')
       
 
 # Will likely use a variant of this function for beta
@@ -463,7 +523,9 @@ def profile(id):
         phnum_requests_received = helper.get_phone_requests_received(conn, id)
 
         # deletes the underscores when displaying majors 
-        user_info["major1"] = user_info['major1'].replace('_', ' ')
+        if user_info['major1']: 
+            user_info["major1"] = user_info['major1'].replace('_', ' ')
+        
         if user_info['major2_minor']: 
             user_info["major2_minor"] = user_info['major2_minor'].replace('_', ' ')
             

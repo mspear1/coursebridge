@@ -9,14 +9,15 @@
 
 {% block content %}
   <div class="profile-container">
+  <span class="badge edit"><a href="{{url_for('update_profile', id=id)}}">Edit Profile</a></span>
   <h2><b>{{ user_info.name }}'s Profile</b></h2>
+
   <div>
     {% if user_info.profile_pic %}
       <img class="profile-picture" src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}"
                                     alt="{{ user_info.name }}'s profile picture">
 
     {% endif %}
-    <!-- <h2>{{ user_info.name }}'s Profile</h2> -->
     <p><b>Name:</b> {{ user_info.name }}</p>
     <p><b>Email:</b> {{ user_info.email_address }}</p>
     {% if id == session['id'] %}
