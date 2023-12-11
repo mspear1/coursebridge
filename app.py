@@ -44,11 +44,13 @@ def index():
     '''
     This renders to login page for users to sign in when they load the website 
     '''
-    if 'id' in session: 
-        # If the session hasn't expired, the stream page should be loaded 
-        return redirect(url_for('stream'))
-    else:
-        return render_template('login.html',title='Login Page')
+    # In case user never clicked 'logged out', but the page is on login
+    if 'username' in session:
+        session.pop('username')
+        session.pop('name')
+        session.pop('id')
+        session.pop('logged_in')
+    return render_template('login.html',title='Login Page')
 
 @app.route('/main/')
 def main():
