@@ -20,7 +20,7 @@
         {% if major2_minor %} 
           <span class="fixed"> & {{ user.major2_minor }}</span>
         {% endif %}
-        <a href="{{url_for('profile', id=user.id)}}">View User's Profile</a>
+        <a href="{{url_for('profile', id=user.id)}}" style="color:rgb(3, 26, 109)">View User's Profile</a>
       </li>
     {% endfor %}
   </ul>

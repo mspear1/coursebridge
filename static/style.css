@@ -298,7 +298,6 @@ ul {
 } */
 
 
-
 .comment-container {
     background-color: #dddbdb;
     border: 2px gray;
@@ -443,4 +442,20 @@ ul {
     width: 220px;
     display: inline;
     align-items: center;
+}
+
+.custom-badge {
+    background-color:#03115b;
+}
+
+.badge.badge-pill.badge-primary {
+    background-color:#092199;
+}
+
+.badge.badge-info {
+    background-color:#03515c
+}
+
+.btn.btn-primary.dropdown-toggle {
+    background-color:#0056b3;
 }
