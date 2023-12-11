@@ -66,8 +66,10 @@ def stream():
     '''
     conn = dbi.connect()
     type = ''
+    major = ''
     date_order = ''
     search_query = ''
+
     if request.method == 'GET':
         posts = helper.get_posts(conn)     
     if request.method == 'POST':
@@ -81,8 +83,9 @@ def stream():
 
         # Fetch posts based on filters
         type = request.form.get('type')
-        if type:
-            filtered = helper.filter_posts(conn, type)
+        major = request.form.get('major')
+        if type or major:
+            filtered = helper.filter_posts(conn, type, major)
         else:
             filtered = helper.get_posts(conn)
 
@@ -115,9 +118,11 @@ def stream():
             post['major2_minor'] = post['major2_minor'].replace('_', ' ')
         if len(post['description']) > 100: # If the description is too long, cut it short
             post['description'] = post['description'][:100] + '...'
+
+    majors_list = [[i,i.replace("_"," ")] for i in helper.get_majors()]
         
-    return render_template('stream.html',
-                            title='Stream - Coursebridge', posts = posts, majors=["Computer Science"], type=type, date_order=date_order, search=search_query)
+    return render_template('stream.html', 
+                            title='Stream - Coursebridge', posts = posts, majors=majors_list, type=type, major=major, date_order=date_order, search=search_query)
 
 
 def get_time_difference(timestamp):
@@ -175,7 +180,9 @@ def create_profile():
     inserts the form information into database for POST
     '''
     if request.method == 'GET':
-        return render_template('profile_form.html', title="Create Profile - Coursebridge")
+        majors_list = [[i,i.replace("_"," ")] for i in helper.get_majors()]
+
+        return render_template('profile_form.html', title="Create Profile - Coursebridge", majors=majors_list,)
     else:
         try:
             id = int(session['id'])
@@ -528,4 +535,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0')
+    app.run('0.0.0.0', port)

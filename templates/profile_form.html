@@ -34,84 +34,18 @@
     <div class="form-group">
         <label for="major1">Major</label>
         <select class="form-control" name="major1" id="major1">
-            <option value="Undecided">Undecided</option>
-            <option value="Africana_Studies">Africana Studies</option>
-            <option value="American_Studies">American Studies</option>
-            <option value="Anthropology">Anthropology</option>
-            <option value="Art">Art</option>
-            <option value="Astronomy">Astronomy</option>
-            <option value="Biological_Sciences">Biological Sciences</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="Classical_Civilization">Classical Civilization</option>
-            <option value="Classical_Studies">Classical Studies</option>
-            <option value="Cognitive_and_Linguistic_Science">Cognitive and Linguistic Science</option>
-            <option value="Computer_Science">Computer Science</option>
-            <option value="East_Asian_Languages_and_Cultures">East Asian Languages and Cultures</option>
-            <option value="Economics">Economics</option>
-            <option value="Education">Education</option>
-            <option value="English_and_Creative_Writing">English and Creative Writing</option>
-            <option value="Environmental_Studies">Environmental Studies</option>
-            <option value="French_and_Francophone_Studies">French and Francophone Studies</option>
-            <option value="Geosciences">Geosciences</option>
-            <option value="German_Studies">German Studies</option>
-            <option value="History">History</option>
-            <option value="Italian_Studies">Italian Studies</option>
-            <option value="Language_Studies_Linguistics">Language Studies Linguistics</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Music">Music</option>
-            <option value="Neuroscience">Neuroscience</option>
-            <option value="Philosophy">Philosophy</option>
-            <option value="Physics">Physics</option>
-            <option value="Political_Science">Political Science</option>
-            <option value="Psychology">Psychology</option>
-            <option value="Religion">Religion</option>
-            <option value="Russian">Russian</option>
-            <option value="Sociology">Sociology</option>
-            <option value="Spanish_and_Portuguese">Spanish and Portuguese</option>
-            <option value="Womens_and_Gender_Studies">Women's and Gender Studies</option>
-            <option value="Other">Other</option>
+          {% for i in majors %}
+          <option value="{{i[0]}}">{{ i[1] }}</option>
+          {% endfor %}
         </select>
     </div>
 
     <div class="form-group">
         <label for="major2_minor">Major2 or Minor</label>
         <select class="form-control" name="major2_minor" id="major2_minor">
-            <option value="Undecided">Undecided</option>
-            <option value="Africana_Studies">Africana Studies</option>
-            <option value="American_Studies">American Studies</option>
-            <option value="Anthropology">Anthropology</option>
-            <option value="Art">Art</option>
-            <option value="Astronomy">Astronomy</option>
-            <option value="Biological_Sciences">Biological Sciences</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="Classical_Civilization">Classical Civilization</option>
-            <option value="Classical_Studies">Classical Studies</option>
-            <option value="Cognitive_and_Linguistic_Science">Cognitive and Linguistic Science</option>
-            <option value="Computer_Science">Computer Science</option>
-            <option value="East_Asian_Languages_and_Cultures">East Asian Languages and Cultures</option>
-            <option value="Economics">Economics</option>
-            <option value="Education">Education</option>
-            <option value="English_and_Creative_Writing">English and Creative Writing</option>
-            <option value="Environmental_Studies">Environmental Studies</option>
-            <option value="French_and_Francophone_Studies">French and Francophone Studies</option>
-            <option value="Geosciences">Geosciences</option>
-            <option value="German_Studies">German Studies</option>
-            <option value="History">History</option>
-            <option value="Italian_Studies">Italian Studies</option>
-            <option value="Language_Studies_Linguistics">Language Studies Linguistics</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Music">Music</option>
-            <option value="Neuroscience">Neuroscience</option>
-            <option value="Philosophy">Philosophy</option>
-            <option value="Physics">Physics</option>
-            <option value="Political_Science">Political Science</option>
-            <option value="Psychology">Psychology</option>
-            <option value="Religion">Religion</option>
-            <option value="Russian">Russian</option>
-            <option value="Sociology">Sociology</option>
-            <option value="Spanish_and_Portuguese">Spanish and Portuguese</option>
-            <option value="Womens_and_Gender_Studies">Women's and Gender Studies</option>
-            <option value="Other">Other</option>
+          {% for i in majors %}
+          <option value="{{i[0]}}">{{ i[1] }}</option>
+          {% endfor %}
         </select>
     </div>
 
