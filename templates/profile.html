@@ -4,7 +4,9 @@
 
 {% block content %}
   <div class="profile-container">
-  <span class="badge edit"><a href="{{url_for('update_profile', id=id)}}">Edit Profile</a></span>
+    {% if session['id']==id %}
+    <span class="badge edit"><a href="{{url_for('update_profile', id=id)}}">Edit Profile</a></span>
+    {% endif %}
   <h2>{{ user_info.name }}'s Profile</h2>
   <div>
     {% if user_info.profile_pic %}
