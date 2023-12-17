@@ -85,8 +85,7 @@ nav a:focus {
 
 .message {
     float: right;
-    margin: 20px;
-    margin-bottom: 30px;
+    margin: 20px auto; 
 }
 
 input[type="text"],

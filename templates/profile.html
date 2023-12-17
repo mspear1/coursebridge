@@ -17,7 +17,11 @@
     {% if user_info.profile_pic %}
       <img class="profile-picture" src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}"
                                     alt="{{ user_info.name }}'s profile picture">
-
+    
+    {% else %}
+      <img class="profile-picture" src="{{ url_for('static', filename='uploads/10.jpeg')}}"
+                                      alt="profile picture">
+          &nbsp &nbsp                                
     {% endif %}
     <p><b>Name:</b> {{ user_info.name }}</p>
     <p><b>Email:</b> {{ user_info.email_address }}</p>

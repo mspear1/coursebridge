@@ -427,6 +427,13 @@ def join():
     session['username'] = username
     passwd1 = request.form.get('password1')
     passwd2 = request.form.get('password2')
+
+    # Verifies that the email is @wellesley.edu
+    if not username.endswith('@wellesley.edu'):
+        flash('Please enter a valid @wellesley.edu email address.')
+        return redirect(url_for('join'))
+
+    # Verifies that password1 and password2 match 
     if passwd1 != passwd2:
         flash('passwords do not match')
         return redirect( url_for('index'))
@@ -491,6 +498,7 @@ def login():
                                 stored.encode('utf-8'))
         hashed2_str = hashed2.decode('utf-8')
         print('rehash is: {} {}'.format(hashed2_str,type(hashed2_str)))
+
         if hashed2_str == stored:
             print('they match!')
             flash('successfully logged in with '+username)
