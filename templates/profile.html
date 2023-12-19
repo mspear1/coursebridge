@@ -90,11 +90,15 @@
       {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
       {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
       {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
-        style="margin-right:8px;">{{post.major2_minor}}</span>{% endif %}
-      {% if post.id == session['id'] %}
-      <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
+        style="margin-right:8px;">{{post.major2_minor}}</span>
       {% endif %}
       <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
+      {% if post.id == session['id'] %}
+      <!-- <button type="submit" name="delete" class="btn btn-primary" style="background-color: rgb(234, 121, 9);" value="{{post.pid}}" >Delete</button>
+      <button type="submit" name="archive" class="btn btn-primary" style="background-color: rgb(196, 177, 4)" value="{{post.pid}}" >Archive</button> -->
+      <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
+      {% endif %}
+      
 
     </div>
 
