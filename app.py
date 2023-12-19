@@ -44,12 +44,22 @@ def index():
     '''
     This renders to login page for users to sign in when they load the website 
     '''
-    # In case user never clicked 'logged out', but the page is on login
+    # When index is retrieved, automatically check for old posts in the database
+    conn = dbi.connect()
+    helper.close_old_posts(conn)
+
+    # In case user never clicked 'logged out', but the page is on login.
+    # Using individual if statements instead of a for-loop because
+    # the logged_in changes the session dictionary size.
     if 'username' in session:
         session.pop('username')
+    if 'name' in session:
         session.pop('name')
+    if 'id' in session:
         session.pop('id')
+    if 'logged_in' in session:
         session.pop('logged_in')
+   
     return render_template('login.html',title='Login Page')
 
 @app.route('/main/')
@@ -283,22 +293,7 @@ def update_profile(id):
         except Exception as err:
             flash('Upload failed {why}'.format(why=err))
             return render_template('profile_form.html',src='',nm='')
-      
-
-# Will likely use a variant of this function for beta
-# @app.route('/pic/<nm>')
-# def pic(nm):
-#     conn = dbi.connect()
-#     curs = dbi.dict_cursor(conn)
-#     numrows = curs.execute(
-#         '''select filename from picfile where nm = %s''',
-#         [nm])
-#     if numrows == 0:
-#         flash('No picture for {}'.format(nm))
-#         return redirect(url_for('index'))
-#     row = curs.fetchone()
-#     return send_from_directory(app.config['UPLOADS'],row['filename'])
-
+   
 @app.route('/display/<pid>', methods=["GET", "POST"])  # may not need post
 def display_post(pid):
     '''
@@ -339,7 +334,6 @@ def display_post(pid):
         # Return back to the page after inserting the comment
         return redirect(url_for('display_post', pid=pid)) 
 
- 
 
 @app.route('/phrequest/<pid>', methods=['GET'])
 def request_ph(pid):
@@ -390,9 +384,12 @@ def update_post(pid):
             helper.update_post(conn, form_info, timestamp, pid)
 
             flash('Your post is updated!')
-        else: # for deleting the post
+        elif action == 'delete': # for deleting the post
             helper.delete_post(conn, pid)
-            flash('Post was deleted successfully')
+            flash('Post was permanently deleted successfully')
+        else:
+            helper.close_post(conn, pid)
+            flash('Post was closed successfully. You can view your closed posts on your profile.')
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
 
 @app.route('/logout')
@@ -404,9 +401,12 @@ def logout():
     if 'username' in session:
         #username = session['username']
         session.pop('username')
-        session.pop('name')
-        session.pop('id')
-        session.pop('logged_in')
+        if 'name' in session:
+            session.pop('name')
+        if 'id' in session:
+            session.pop('id')
+        if 'logged_in' in session:
+            session.pop('logged_in')
         flash('You are logged out')
         return redirect(url_for('index'))
     else:
@@ -477,7 +477,6 @@ def login():
     # Posts the form once user fills out information 
     else:
         username = request.form.get('username')
-        session['username'] = username
         passwd = request.form.get('password')
         conn = dbi.connect()
         curs = dbi.dict_cursor(conn)
@@ -567,8 +566,17 @@ def profile(id):
                                 title="Profile - Coursebridge", phnum_requests_received=phnum_requests_received,
                                 phnum_requests_made=phnum_requests_made, id=id, posts=posts)
     else:
-        sid = request.form['phnum_sid']
-        helper.accept_phone_req(conn, id, sid) 
+        if request.form.get('delete'):
+            pid = request.form.get('delete')
+            helper.delete_post(conn, pid)
+            flash('Post was permanently deleted successfully')
+        elif request.form.get('archive'):
+            pid = request.form.get('archive')
+            helper.close_post(conn, pid)
+            flash('Post was closed successfully. You can view your closed posts on your profile.')
+        else:
+            sid = request.form['phnum_sid']
+            helper.accept_phone_req(conn, id, sid) 
         return redirect(url_for('profile', id=id))
 
 @app.route('/accounts/')
@@ -588,6 +596,46 @@ def accounts():
             account["major2_minor"] = account['major2_minor'].replace('_', ' ')
 
     return render_template('accounts.html', title="Accounts", all_users = accounts)
+
+@app.route('/update_comment/<cid>', methods=["GET", "POST"])  # may not need post
+def update_comment(cid):
+    conn = dbi.connect()
+    id = int(session['id'])
+    cid_post_id = helper.get_post_id_given_cid(conn, cid)['pid']
+    if request.method == 'GET': 
+        comment = helper.get_comment_given_cid(conn, cid)['description']
+        
+        return render_template('update_comment.html', title="Update Comment", cid=cid, comment=comment, pid=cid_post_id)
+    else:
+        # pid = request.form.get('update') # Unsure, but one way to get the pid, since we have to pass in cid through the url
+        action = request.form.get('submit')
+        comment = request.form.get('comment')
+        if action == 'update':
+            # pid = request.form.get('update')
+            helper.update_comment(conn, cid, comment)
+        else: # action is delete
+            # pid = request.form.get('delete')
+            helper.delete_comment(conn, cid)
+        return redirect(url_for('display_post', pid=cid_post_id))
+
+# May not include           
+# @app.route('/delete_comment/<cid>', methods=["POST"])
+# def delete_comment(cid):
+#     conn = dbi.connect()
+#     helper.delete_comment(conn, cid)
+#     cid_post_id = helper.get_post_id_given_cid(conn, cid)['pid']
+#     return redirect(url_for('display_post', pid=cid_post_id))
+
+# # yet to implement
+# @app.route('/deleteorclose/<pid>')
+# def delete_or_close(pid):
+#     conn = dbi.connect()
+#     action = request.form.get('submit')
+#     if action == 'delete': # for deleting the post
+#         helper.delete_post(conn, pid)
+#         flash('Post was permanently deleted successfully')
+#     else:
+#         helper.close_post(conn, pid)
 
 
 if __name__ == '__main__':

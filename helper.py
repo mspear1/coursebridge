@@ -1,6 +1,6 @@
 # @authors: Ashley, Emily, Louisa, Madelynn
 import cs304dbi as dbi
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # ==========================================================
 # This file is to hold functions that execute queries.
@@ -78,6 +78,18 @@ def delete_post(conn, pid):
     curs.execute('''delete from post where pid = %s''', [pid])
     conn.commit()
 
+def close_post(conn, pid):
+    '''
+    Inputs: pid, id of post
+    Closes the post, which means it won't show up on the stream
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''update post set status = 'closed'
+                    where post.pid = %s''', [pid])
+    conn.commit()
+    
+
+
 
 def get_postinfo(conn, pid):
     '''
@@ -103,7 +115,7 @@ def get_posts(conn):
                     student.major2_minor as major2_minor, student.id as id, title, description, 
                     timestamp, location, on_campus, tag, professor, class, date, status, pid
                     from post, student 
-                    where post.sid is not NULL and post.sid = student.id;''')
+                    where post.sid is not NULL and post.sid = student.id and post.status = 'open';''')
     return curs.fetchall()
 
 def get_user_posts(conn, student_ID):
@@ -245,7 +257,7 @@ def get_post_comments(conn, postid):
     Gets the comments for a post given the postid and returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
-    curs.execute('''select description, sid, timestamp, pid,
+    curs.execute('''select cid, description, sid, timestamp, pid,
                     name 
                     from comment, student where 
                     pid = %s and comment.sid = student.id;''', 
@@ -274,6 +286,28 @@ def insert_comment(conn, comment, sid, time, pid):
     curs.execute('''insert into comment(description, sid, timestamp, pid)
                     values (%s, %s, %s, %s)''',
                     [comment, sid, time, pid])
+    conn.commit()
+
+def update_comment(conn, cid, comment):
+    '''
+    Inputs: comment id (cid), comment
+    Updates the user comment and commits
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''update comment set description = %s
+                    where cid=%s''',
+                    [cid, comment])
+    conn.commit()
+
+def delete_comment(conn, cid):
+    '''
+    Inputs: comment id (cid), comment
+    Deletes the user comment and commits
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''delete from comment
+                    where cid=%s''',
+                    [cid])
     conn.commit()
 
 def make_phone_request(conn, sid, id):
@@ -307,7 +341,7 @@ def get_accounts(conn):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select id, name, email_address, major1, major2_minor, 
-                profile_pic, dorm_hall from student''') 
+                    profile_pic, dorm_hall from student''') 
     return curs.fetchall()
 
 def get_phone_requests_received(conn, id):
@@ -361,3 +395,35 @@ def get_majors():
               'Womens_and_Gender_Studies', 'Other']
 
     return majors
+
+
+def close_old_posts(conn):
+    #current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    # Since this isn't an active site, want to keep many posts on, so
+    # setting cutoff date to 40 days ago for now
+    cutoff_time = (datetime.now() - timedelta(days=40)).strftime("%Y-%m-%d %H:%M")
+
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''UPDATE post SET status = 'closed' WHERE timestamp < %s''', 
+                    [cutoff_time])
+    conn.commit()
+
+def get_comment_given_cid(conn, cid):
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select description from comment where cid=%s''',
+                    [cid])
+    return curs.fetchone()
+
+# May not keep
+def get_post_id_given_cid(conn, cid):
+    '''
+    Get the post id given cid, this function is to help 
+    redirect to the post after deleting a comment
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select pid from comment where cid = %s''',
+                    [cid])
+    return curs.fetchone()
+
+

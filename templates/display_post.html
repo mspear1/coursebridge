@@ -53,6 +53,7 @@
   <div class="user-comment">
     <p class="rid-bottom">{{ comment.name }} {{comment.timestamp}}</p>
     <p class="rid-bottom">{{ comment.description }}</p>
+    <button><a href="{{ url_for('update_comment', cid=comment.cid) }}">Edit</a></button>
   </div>
 
   {% else %}
