@@ -563,9 +563,12 @@ def profile(id):
                 post['major2_minor'] = post['major2_minor'].replace('_', ' ')
             if len(post['description']) > 100: # If the description is too long, cut it short
                 post['description'] = post['description'][:100] + '...'
+        active_posts = [post for p in posts if post['status']=='open']
+        closed_posts = [post for p in posts if post['status']=='closed']
         return render_template('profile.html', user_info = user_info, 
                                 title="Profile - Coursebridge", phnum_requests_received=phnum_requests_received,
-                                phnum_requests_made=phnum_requests_made, id=id, posts=posts)
+                                phnum_requests_made=phnum_requests_made, id=id, 
+                                closed_posts=closed_posts, active_posts=active_posts)
     else:
         sid = request.form['phnum_sid']
         helper.accept_phone_req(conn, id, sid) 
@@ -604,4 +607,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0', port)
+    app.run('0.0.0.0', port=8997)
