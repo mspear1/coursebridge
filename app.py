@@ -27,7 +27,6 @@ app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024 # 2 MB
 # # To increase session time 
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
-
 app.secret_key = 'your secret here'
 # replace that with a random key
 
@@ -49,17 +48,11 @@ def index():
     helper.close_old_posts(conn)
 
     # In case user never clicked 'logged out', but the page is on login.
-    # Using individual if statements instead of a for-loop because
-    # the logged_in changes the session dictionary size.
-    if 'username' in session:
-        session.pop('username')
-    if 'name' in session:
-        session.pop('name')
-    if 'id' in session:
-        session.pop('id')
-    if 'logged_in' in session:
-        session.pop('logged_in')
-   
+    # Using a list version of session.keys because of changing size due to pop(key)
+    for key in list(session.keys()):
+        if key != '_flashes':
+            session.pop(key)
+
     return render_template('login.html',title='Login Page')
 
 @app.route('/main/')
@@ -69,6 +62,18 @@ def main():
     '''
     return render_template('main.html',title='Welcome Page')
 
+def replace_underscores_in_dict_values(dictionary):
+    '''
+    Helper function for replacing underscores in dictionaries
+    from sql queries, mostly for major1 and major2 enums
+    '''
+    updated = {}
+    for key, value in dictionary.items():
+        if value is not None and isinstance(value, str):
+            updated[key] = value.replace('_', ' ')
+        else:
+            updated[key] = value
+    return updated
 
 @app.route('/stream/', methods=['GET', 'POST'])
 def stream():
@@ -77,6 +82,7 @@ def stream():
     filters the posts first with the indicated filters before returning them
     '''
     conn = dbi.connect()
+    # Intialize variables later passsed into return_template
     type = ''
     major = ''
     date_order = ''
@@ -111,26 +117,18 @@ def stream():
         date_order = request.form.get('dateorder')
 
         # sort posts by date order
-        if date_order == 'early':
-            posts = sorted(posts, key=lambda x:x['date'])
-        elif date_order == 'late':
-            posts = sorted(posts, key=lambda x:x['date'], reverse=True)
+        posts = sorted(posts, key=lambda x: x['date'], reverse=(date_order == 'late'))
         
         # To let the user know that posts have been filtered
         flash('Filters have been applied') 
 
     # reformatting for display purposes and slicing for database purposes
+    posts = [replace_underscores_in_dict_values(post) for post in posts]
     for post in posts:
         if post['timestamp']:   
             post['timestamp'] = get_time_difference(post['timestamp'])
-        if post['major']:
-            post['major'] = post['major'].replace('_', ' ')
-        post['tag'] = post['tag'].replace('_', ' ')
-        if post['major2_minor']:
-            post['major2_minor'] = post['major2_minor'].replace('_', ' ')
         if len(post['description']) > 100: # If the description is too long, cut it short
             post['description'] = post['description'][:100] + '...'
-
     majors_list = [[i,i.replace("_"," ")] for i in helper.get_majors()]
         
     return render_template('stream.html', 
@@ -172,16 +170,11 @@ def create_post():
         form_info = request.form  # dictionary of form data
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        
+        id = session['id']
 
-        # Handling the case where the session expired somehow
-        if 'id' in session:
-            id = session['id']
-
-            helper.add_post(conn, form_info, timestamp, id)
-            flash('Your post is created!')
-        else:
-            flash('Sorry, your session has expired. Please login again.')
-            redirect(url_for('login'))
+        helper.add_post(conn, form_info, timestamp, id)
+        flash('Your post is created!')
         
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
 
@@ -268,25 +261,20 @@ def update_profile(id):
             major1 = request.form['major1']
             major2_minor = request.form['major2_minor']
             dorm = request.form['dorm']
+            
+            # upload file if it exists
+            if f: 
+                helper.upload_profile_pic(conn, id, filename)
 
-            # Handling the case where the session expires while the user
-            # is in the midst of creating a profile
-            if 'id' in session:
-                # upload file if it exists
-                if f: 
-                    helper.upload_profile_pic(conn, id, filename)
+            helper.update_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
+            # To get name to display on nav bar after creating a profile
+            user_name = helper.get_user_info(conn, id)['name']
+            session['name'] = user_name
 
-                helper.update_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id)
-                # To get name to display on nav bar after creating a profile
-                user_name = helper.get_user_info(conn, id)['name']
-                session['name'] = user_name
-
-                # To get phone_num to display
-                session['phone_num'] = phnumber
-                flash('Profile Updated!')
-            else:
-                flash('Sorry, your session has expired. Please login again.')
-                redirect(url_for('login'))
+            # To get phone_num to display
+            session['phone_num'] = phnumber
+            flash('Profile Updated!')
+            
 
             return redirect(url_for('profile', id=id))
         
@@ -306,15 +294,11 @@ def display_post(pid):
 
     if request.method == 'GET':
         post = helper.get_postinfo(conn, pid)
-
+        post = replace_underscores_in_dict_values(post)
         # Reformatting data for display purposes
         if post['timestamp']:   
             post['timestamp'] = get_time_difference(post['timestamp'])
-        if post['major']:
-            post['major'] = post['major'].replace('_', ' ')
-        post['tag'] = post['tag'].replace('_', ' ')
-        if post['major2_minor']:
-            post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+        
         comments = helper.get_post_comments(conn, pid)
         for comment in comments:
             comment['timestamp'] = get_time_difference(comment['timestamp'])
@@ -368,18 +352,10 @@ def update_post(pid):
             
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
             
-            # Handling the case where the session expires while the user
-            # is in the midst of creating a post
-            id = 0
-            if 'id' in session:
-                id = session['id']
-
-                # To get name to display
-                name = helper.get_user_info(conn, id)['name']
-                session['name'] = name   
-            else:
-                flash('Sorry, your session has expired. Please login again.')
-                redirect(url_for('login'))
+            id = session['id']
+            # To get name to display
+            name = helper.get_user_info(conn, id)['name']
+            session['name'] = name  
             
             helper.update_post(conn, form_info, timestamp, pid)
 
@@ -395,23 +371,14 @@ def update_post(pid):
 @app.route('/logout')
 def logout():
     '''
-    Function that checks the current status and logs out the user
-    if they were logged in. 
+    Function that logs out the user if they were logged in
     '''
-    if 'username' in session:
-        #username = session['username']
-        session.pop('username')
-        if 'name' in session:
-            session.pop('name')
-        if 'id' in session:
-            session.pop('id')
-        if 'logged_in' in session:
-            session.pop('logged_in')
-        flash('You are logged out')
-        return redirect(url_for('index'))
-    else:
-        flash('You are not logged in. Please login or signup')
-        return redirect(url_for('index') )
+    for key in list(session.keys()):
+        if key != '_flashes':
+            session.pop(key)
+    flash('You are logged out')
+    return redirect(url_for('index'))
+    
 
 @app.route('/join/', methods=["POST", "GET"])
 def join():
@@ -427,6 +394,13 @@ def join():
     session['username'] = username
     passwd1 = request.form.get('password1')
     passwd2 = request.form.get('password2')
+
+    # Verifies that the email is @wellesley.edu
+    if not username.endswith('@wellesley.edu'):
+        flash('Please enter a valid @wellesley.edu email address.')
+        return redirect(url_for('join'))
+
+    # Verifies that password1 and password2 match 
     if passwd1 != passwd2:
         flash('passwords do not match')
         return redirect( url_for('index'))
@@ -448,13 +422,11 @@ def join():
     curs.execute('select last_insert_id()')
     row = curs.fetchone()
     id = row[0]
-    # flash('FYI, you were issued ID {}'.format(id))
     flash('You successfully created an account with {}'.format(username))
     session['username'] = username
     session['id'] = id
     session['logged_in'] = True
     session['visits'] = 1
-    # return redirect( url_for('user', username=username) )
     return redirect( url_for('create_profile') )  # redirect to creating profile after joining
 
 @app.route('/login/', methods=["POST", "GET"])
@@ -489,7 +461,8 @@ def login():
         hashed2 = bcrypt.hashpw(passwd.encode('utf-8'),
                                 stored.encode('utf-8'))
         hashed2_str = hashed2.decode('utf-8')
-        print('rehash is: {} {}'.format(hashed2_str,type(hashed2_str)))
+        #print('rehash is: {} {}'.format(hashed2_str,type(hashed2_str)))
+
         if hashed2_str == stored:
             print('they match!')
             flash('successfully logged in with '+username)
@@ -502,7 +475,6 @@ def login():
             name = helper.get_user_info(conn, row['id'])['name']
             if name:
                 session['name'] = name
-                # return redirect( url_for('user', username=username) )
                 return redirect( url_for('stream') )
             
             # In case they created an account before but 
@@ -511,7 +483,7 @@ def login():
                 return redirect(url_for('create_profile'))
 
         else:
-            flash('login incorrect. Try again or join')
+            flash('Login incorrect. Try again or join')
             return redirect( url_for('index'))
 
 
@@ -526,32 +498,21 @@ def profile(id):
     id = int(id)
     if request.method == 'GET':
         user_info = helper.get_user_info(conn, id)
-        phnum_requests_received = helper.get_phone_requests_received(conn, id)
-
-        # deletes the underscores when displaying majors 
-        if user_info['major1']: 
-            user_info["major1"] = user_info['major1'].replace('_', ' ')
-        
-        if user_info['major2_minor']: 
-            user_info["major2_minor"] = user_info['major2_minor'].replace('_', ' ')
-            
-        for item in phnum_requests_received:
-            item['major1'] = item['major1'].replace('_', ' ')
-        phnum_requests_made = helper.get_phone_requests_made(conn, id)
-        for item in phnum_requests_made:
-            item['major1'] = item['major1'].replace('_', ' ')
-
+        user_info = replace_underscores_in_dict_values(user_info)
+        phnum_requests_received = [replace_underscores_in_dict_values(phnum_request) 
+                                   for phnum_request in helper.get_phone_requests_received(conn, id)]
+    
         posts = helper.get_user_posts(conn, id)
         posts = sorted(posts, key=lambda x:x['date']) # sort early-oldest
 
+        phnum_requests_made = [replace_underscores_in_dict_values(phnum_request) 
+                               for phnum_request in helper.get_phone_requests_made(conn, id)]
+
+        posts = [replace_underscores_in_dict_values(post) for post in posts]
         for post in posts:
             if post['timestamp']:   
                 post['timestamp'] = get_time_difference(post['timestamp'])
-            if post['major']:
-                post['major'] = post['major'].replace('_', ' ')
-            post['tag'] = post['tag'].replace('_', ' ')
-            if post['major2_minor']:
-                post['major2_minor'] = post['major2_minor'].replace('_', ' ')
+        
             if len(post['description']) > 100: # If the description is too long, cut it short
                 post['description'] = post['description'][:100] + '...'
         return render_template('profile.html', user_info = user_info, 
@@ -578,14 +539,10 @@ def accounts():
     email address, majors, and a link to their profile. 
     """ 
     conn = dbi.connect()
-    accounts = helper.get_accounts(conn)
 
     # deletes the underscores when displaying majors 
-    for account in accounts: 
-        if account["major1"]: 
-            account["major1"] = account['major1'].replace('_', ' ')
-        if account["major2_minor"]:
-            account["major2_minor"] = account['major2_minor'].replace('_', ' ')
+    accounts = [replace_underscores_in_dict_values(phnum_request) 
+                    for phnum_request in helper.get_accounts(conn)]
 
     return render_template('accounts.html', title="Accounts", all_users = accounts)
 
@@ -593,22 +550,19 @@ def accounts():
 def update_comment(cid):
     conn = dbi.connect()
     id = int(session['id'])
-    cid_post_id = helper.get_post_id_given_cid(conn, cid)['pid']
+    post_id = helper.get_post_id_given_cid(conn, cid)['pid']
     if request.method == 'GET': 
         comment = helper.get_comment_given_cid(conn, cid)['description']
         
-        return render_template('update_comment.html', title="Update Comment", cid=cid, comment=comment, pid=cid_post_id)
+        return render_template('update_comment.html', title="Update Comment", cid=cid, comment=comment, pid=post_id)
     else:
-        # pid = request.form.get('update') # Unsure, but one way to get the pid, since we have to pass in cid through the url
-        action = request.form.get('submit')
         comment = request.form.get('comment')
-        if action == 'update':
-            # pid = request.form.get('update')
+        if request.form.get('submit') == 'update':
             helper.update_comment(conn, cid, comment)
         else: # action is delete
             # pid = request.form.get('delete')
             helper.delete_comment(conn, cid)
-        return redirect(url_for('display_post', pid=cid_post_id))
+        return redirect(url_for('display_post', pid=post_id))
 
 # May not include           
 # @app.route('/delete_comment/<cid>', methods=["POST"])

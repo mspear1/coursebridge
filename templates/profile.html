@@ -8,121 +8,128 @@
 {% block title %} User Profile - {{ session['username'] }}{% endblock %}
 
 {% block content %}
+<div class="page-container">
   <div class="profile-container">
     {% if session['id']==id %}
-    <span class="badge edit" style="font-size:20px;"><a href="{{url_for('update_profile', id=id)}}">Edit Profile</a></span>
+    <span class="badge edit" style="font-size:20px;"><a href="{{url_for('update_profile', id=id)}}">Edit
+        Profile</a></span>
     {% endif %}
-  <h2><b>{{ user_info.name }}'s Profile</b></h2>
-  <div>
-    {% if user_info.profile_pic %}
+    <h2><b>{{ user_info.name }}'s Profile</b></h2>
+    <div>
+      {% if user_info.profile_pic %}
       <img class="profile-picture" src="{{url_for('static', filename='uploads/'+user_info.profile_pic)}}"
-                                    alt="{{ user_info.name }}'s profile picture">
+        alt="{{ user_info.name }}'s profile picture">
 
-    {% endif %}
-    <p><b>Name:</b> {{ user_info.name }}</p>
-    <p><b>Email:</b> {{ user_info.email_address }}</p>
+      {% else %}
+      <img class="profile-picture" src="{{ url_for('static', filename='uploads/10.jpeg')}}" alt="profile picture">
+      &nbsp &nbsp
+      {% endif %}
+      <p><b>Name:</b> {{ user_info.name }}</p>
+      <p><b>Email:</b> {{ user_info.email_address }}</p>
+      {% if id == session['id'] %}
+      <p><b>Phone Number:</b> {{ user_info.phone_num }}</p>
+      {% endif %}
+      <p><b>Major1:</b> {{ user_info.major1 }}</p>
+      <p><b>Major2/Minor:</b> {{ user_info.major2_minor }}</p>
+      <p><b>Dorm:</b> {{ user_info.dorm_hall }}</p>
+
+
+    </div>
+
     {% if id == session['id'] %}
-    <p><b>Phone Number:</b> {{ user_info.phone_num }}</p>
-    {% endif %}
-    <p><b>Major1:</b> {{ user_info.major1 }}</p>
-    <p><b>Major2/Minor:</b> {{ user_info.major2_minor }}</p>
-    <p><b>Dorm:</b> {{ user_info.dorm_hall }}</p>
-    
-
-  </div>
-
-  {% if id == session['id'] %}
-  <div>
-    <h3 style="font-size: 20px">People Who Requested Your Phone Number</h3>
-    <ul>
-      {% for phnum in phnum_requests_received %}
+    <div>
+      <h3 style="font-size: 20px">People Who Requested Your Phone Number</h3>
+      <ul>
+        {% for phnum in phnum_requests_received %}
         {% if phnum.approved == 'no' %}
         <li>
           <form method="post" action="{{ url_for('profile', id=id) }}">
             <input type="hidden" name="phnum_sid" value="{{ phnum.requester }}">
             <div class="container">
               <p class="inline">{{phnum.name}} &nbsp {{phnum.major1}}</p>
-              
+
               <button type="submit" style="font-size:15px; margin-left:10px;">Approve Request</button>
             </div>
           </form>
         </li>
         {% endif %}
-      {% endfor %}
-    </ul>
-    <h3 style="font-size: 20px">Your Phone Number Requests</h3>
+        {% endfor %}
+      </ul>
+      <h3 style="font-size: 20px">Your Phone Number Requests</h3>
 
-    
-    <div class="aligned-table">
-      <div class="aligned-table-row aligned-table-header">
-        <div class="aligned-table-cell">Name</div>
-        <div class="aligned-table-cell">Major</div>
-        <div class="aligned-table-cell">Approved</div>
-        <div class="aligned-table-cell">Phone</div>
-      </div>
-    
-      {% for ph in phnum_requests_made %}
+
+      <div class="aligned-table">
+        <div class="aligned-table-row aligned-table-header">
+          <div class="aligned-table-cell">Name</div>
+          <div class="aligned-table-cell">Major</div>
+          <div class="aligned-table-cell">Approved</div>
+          <div class="aligned-table-cell">Phone</div>
+        </div>
+
+        {% for ph in phnum_requests_made %}
         <div class="aligned-table-row">
           <div class="aligned-table-cell">{{ ph.name }}</div>
           <div class="aligned-table-cell">{{ ph.major1 }}</div>
           <div class="aligned-table-cell">{{ ph.approved }}</div>
           {% if ph.approved == 'yes' %}
-            <div class="aligned-table-cell">{{ ph.phone }}</div>
+          <div class="aligned-table-cell">{{ ph.phone }}</div>
           {% else %}
-            <div class="aligned-table-cell"></div>
+          <div class="aligned-table-cell"></div>
           {% endif %}
         </div>
-      {% endfor %}
-    </div>
+        {% endfor %}
+      </div>
 
-  </div>
+    </div>
   </div>
   {% endif %}
 
 
-<div class="profile-stream-container">
-  {% if posts %}
-  <h2>Posts by {{ user_info.name }}</h2>
-  {% for post in posts %}
-  <div class="post-container" style="width:70%;">
-    <div class="post-block">
-      <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %} 
-      {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
-      {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
-      {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
-        style="margin-right:8px;">{{post.major2_minor}}</span>
-      {% endif %}
-      <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
-      {% if post.id == session['id'] %}
-      <!-- <button type="submit" name="delete" class="btn btn-primary" style="background-color: rgb(234, 121, 9);" value="{{post.pid}}" >Delete</button>
+  <div class="profile-stream-container">
+    {% if posts %}
+    <h2 style="margin-left:10px;">Posts by {{ user_info.name }}</h2>
+    {% for post in posts %}
+    <div class="post-container" style="width:95%;">
+      <div class="post-block">
+        <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %}
+          {% if post.timestamp %}<em>{{post.timestamp}}</em>{% endif %}</p>
+        {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
+        {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
+          style="margin-right:8px;">{{post.major2_minor}}</span>
+        {% endif %}
+        <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
+        {% if post.id == session['id'] %}
+        <!-- <button type="submit" name="delete" class="btn btn-primary" style="background-color: rgb(234, 121, 9);" value="{{post.pid}}" >Delete</button>
       <button type="submit" name="archive" class="btn btn-primary" style="background-color: rgb(196, 177, 4)" value="{{post.pid}}" >Archive</button> -->
-      <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
-      {% endif %}
-      
+        <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
+        {% endif %}
 
+
+      </div>
+
+      <div class="post-block">
+        <span class="custom-badge">{{post.tag}}</span>
+        <h5 class="inline">{{post.title}}</h5>
+      </div>
+
+      <p>{{post.description}}</p>
+      <div class="post-block">
+        <p class="inline">{% if post.date %} Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
+        <p class="inline" style="margin-left: 20px;">{% if post.location %}Location: {{post.location}} {% endif %}</p>
+        <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}On-campus: {{post.on_campus}} {% endif %}
+        </p>
+
+
+        {% if post.professor %}<span class="badge badge-info">{{post.professor}} </span>{% endif %}
+        {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{%
+        endif %}
+      </div>
     </div>
-
-    <div class="post-block">
-      <span class="custom-badge">{{post.tag}}</span>
-      <h5 class="inline">{{post.title}}</h5>
-    </div>
-
-    <p>{{post.description}}</p>
-    <div class="post-block">
-      <p class="inline">{% if post.date %} Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
-      <p class="inline" style="margin-left: 20px;">{% if post.location %}Location: {{post.location}} {% endif %}</p>
-      <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}On-campus: {{post.on_campus}} {% endif %}</p>
-
-
-      {% if post.professor %}<span class="badge badge-info">{{post.professor}} </span>{% endif %}
-      {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{%
-      endif %}
-    </div>
+    {% endfor %}
+    {% else %}
+    <p>No posts found</p>
+    {% endif %}
   </div>
-  {% endfor %}
-  {% else %}
-  <p>No posts found</p>
-  {% endif %}
 </div>
 
 {% endblock %}
