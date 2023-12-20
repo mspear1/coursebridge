@@ -12,28 +12,20 @@ import cs304dbi as dbi
 # import cs304dbi_sqlite3 as dbi
 
 import helper 
-import random
 import bcrypt
 from datetime import datetime
-from datetime import timedelta
-
 
 import sys, os, random
-import imghdr
 
 app.config['UPLOADS'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024 # 2 MB
-
-# # To increase session time 
-# app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
-
 app.secret_key = 'your secret here'
 # replace that with a random key
 
-'''app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
-                                          'abcdefghijklmnopqrstuvxyz' +
-                                          '0123456789'))
-                           for i in range(20) ])'''
+# app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+#                                           'abcdefghijklmnopqrstuvxyz' +
+#                                           '0123456789'))
+#                            for i in range(20) ])
 
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
@@ -573,26 +565,6 @@ def update_comment(cid):
             # pid = request.form.get('delete')
             helper.delete_comment(conn, cid)
         return redirect(url_for('display_post', pid=post_id))
-
-# May not include           
-# @app.route('/delete_comment/<cid>', methods=["POST"])
-# def delete_comment(cid):
-#     conn = dbi.connect()
-#     helper.delete_comment(conn, cid)
-#     cid_post_id = helper.get_post_id_given_cid(conn, cid)['pid']
-#     return redirect(url_for('display_post', pid=cid_post_id))
-
-# # yet to implement
-# @app.route('/deleteorclose/<pid>')
-# def delete_or_close(pid):
-#     conn = dbi.connect()
-#     action = request.form.get('submit')
-#     if action == 'delete': # for deleting the post
-#         helper.delete_post(conn, pid)
-#         flash('Post was permanently deleted successfully')
-#     else:
-#         helper.close_post(conn, pid)
-
 
 if __name__ == '__main__':
     import sys, os

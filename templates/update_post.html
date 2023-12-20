@@ -10,10 +10,9 @@
 {% endblock head_stuff %}
 
 
-{% block header %} <h2>Update Post</h2> {% endblock header %}
-
-
 {% block content %}
+<h2>Update Post</h2>
+
 
 <!--Description, tag, location, date, professor (if discuss hw), class (if discuss hw), oncampus-->
 <form method=post action="{{url_for('update_post', pid=pid)}}" style="width:500px; margin-top: 5px; margin-left: 50px;">

@@ -11,10 +11,11 @@
 {% endblock head_stuff %}
 
 
-{% block header %} <h2>Create Form</h2> {% endblock header %}
 
 
 {% block content %}
+<h2>Create Post</h2>
+
 
 <!--Description, tag, location, date, professor (if discuss hw), class (if discuss hw), oncampus-->
 <form method=post action="{{url_for('create_post')}}" style="width:500px; margin-top: 5px; margin-left: 50px;">
