@@ -172,6 +172,7 @@ def create_post():
 
         form_info = request.form  # dictionary of form data
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+
         id = session['id']
 
         helper.add_post(conn, form_info, timestamp, id)
