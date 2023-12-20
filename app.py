@@ -101,7 +101,8 @@ def stream():
     posts = sorted(posts, key=lambda x: x['date'], reverse=(date_order == 'late'))
     
     # To let the user know that posts have been filtered
-    flash('Filters have been applied') 
+    if search_query or type or major or date_order:
+        flash('Filters have been applied') 
 
     # reformatting for display purposes and slicing for database purposes
     posts = [replace_underscores_in_dict_values(post) for post in posts]
@@ -580,4 +581,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0', port=9003)
+    app.run('0.0.0.0', port)
