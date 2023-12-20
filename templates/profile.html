@@ -99,8 +99,6 @@
         {% endif %}
         <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
         {% if post.id == session['id'] %}
-        <!-- <button type="submit" name="delete" class="btn btn-primary" style="background-color: rgb(234, 121, 9);" value="{{post.pid}}" >Delete</button>
-      <button type="submit" name="archive" class="btn btn-primary" style="background-color: rgb(196, 177, 4)" value="{{post.pid}}" >Archive</button> -->
         <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
         {% endif %}
 
