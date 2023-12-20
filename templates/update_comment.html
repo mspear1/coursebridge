@@ -8,10 +8,11 @@
 {% block content %}
 
   <form id="commentForm" method=post action="{{ url_for('update_comment', cid=cid) }}">
-    <label for="comment">Comment:</label>
-    <textarea id="comment" name="comment" required>{{ comment }}</textarea>
+    <label for="comment" style="display: block;">Comment:</label>
+    <textarea id="comment" name="comment" style="margin-bottom:10px;" required>{{ comment }}</textarea>
 
-    <button type="update">Update</button>
+    <button type="submit" name="submit" value="update">Update</button>
+    <button type="submit" name="submit" value="delete">Delete</button>
   </form>
 </div>
 </div>

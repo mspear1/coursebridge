@@ -151,10 +151,12 @@ button {
     border: 2px solid rgb(7, 113, 143);
     border-radius: 8px;
     margin-top: 20px;
+    margin-left:10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: inline-block;
     justify-content: space-between;
     width: 98%;
+
 
 
 }
@@ -405,7 +407,10 @@ ul {
     padding: 10px;
     margin: 10px;
     border-radius: 5px;
-    width: 90%;
+    width: 500px;
+    @media (min-width: 800px) {
+        width: 80%;
+    }
   }
 
 .accounts-picture {
@@ -417,7 +422,7 @@ ul {
 .aligned-table {
     display: table;
     border-collapse: collapse;
-    width: 60%;
+    width: 90%;
     font-family: Arial, sans-serif;
 }
 
@@ -468,4 +473,13 @@ ul {
     width:500px; 
     margin-top: 5px; 
     margin-left: 50px;
+}
+
+.edit-comment {
+    padding:5px;
+    background-color: rgb(3, 104, 60);
+}
+
+.page-container{
+    display: flex;
 }
