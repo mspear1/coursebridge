@@ -150,18 +150,18 @@
           {% endif %}
           <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
         </div>
-
-        <div class="post-block">
+        
+      <div class="post-block">
           <span class="custom-badge">{{post.tag}}</span>
           <h5 class="inline">{{post.title}}</h5>
         </div>
 
-        <p>{{post.description}}</p>
-        <div class="post-block">
-          <p class="inline">{% if post.date %} Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
-          <p class="inline" style="margin-left: 20px;">{% if post.location %}Location: {{post.location}} {% endif %}</p>
-          <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}On-campus: {{post.on_campus}} {% endif %}
-          </p>
+      <p>{{post.description}}</p>
+      <div class="post-block">
+        <p class="inline">{% if post.date %}<b>Tentative Date:</b> {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
+        <p class="inline" style="margin-left: 20px;">{% if post.location %}<b>Location:</b> {{post.location}} {% endif %}</p>
+        <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}<b>On-Campus:</b> {{post.on_campus}} {% endif %}
+        </p>
 
           {% if post.professor %}<span class="badge badge-info">{{post.professor}} </span>{% endif %}
           {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{%

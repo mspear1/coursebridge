@@ -78,7 +78,7 @@ def replace_underscores_in_dict_values(dictionary):
             updated[key] = value
     return updated
 
-@app.route('/stream/', methods=['GET', 'POST'])
+@app.route('/stream/')
 def stream():
     '''
     This handler function gets posts to display for 'get', and for 'post' it 
@@ -91,39 +91,25 @@ def stream():
     date_order = ''
     search_query = ''
 
-    if request.method == 'GET':
-        posts = helper.get_posts(conn)     
-    if request.method == 'POST':
-        search_query = request.form.get('search_query')
+    posts = helper.get_posts(conn)     
 
-        # Fetch posts based on the search query
-        if search_query is not None:
-            search_results = helper.search(conn, search_query)
-        else:
-            search_results = []
+    search_query = request.args.get('search_query')
 
-        # Fetch posts based on filters
-        type = request.form.get('type')
-        major = request.form.get('major')
-        if type or major:
-            filtered = helper.filter_posts(conn, type, major)
-        else:
-            filtered = helper.get_posts(conn)
+    type = request.args.get('type')
+    major = request.args.get('major')
+    if type or major or search_query:
+        posts = helper.filter_posts(conn, type, major, search_query)
+    else:
+        search_query=''
+        posts = helper.get_posts(conn)
 
-        # Combine such that only posts *both* the search and filter grabbed will be displayed
-        posts = []
-        if len(search_results) > 0:
-            for i in filtered:
-                if i in search_results: # if common, add to posts to stream
-                    posts.append(i)
+    date_order = request.form.get('dateorder')
 
-        date_order = request.form.get('dateorder')
-
-        # sort posts by date order
-        posts = sorted(posts, key=lambda x: x['date'], reverse=(date_order == 'late'))
-        
-        # To let the user know that posts have been filtered
-        flash('Filters have been applied') 
+    # sort posts by date order
+    posts = sorted(posts, key=lambda x: x['date'], reverse=(date_order == 'late'))
+    
+    # To let the user know that posts have been filtered
+    flash('Filters have been applied') 
 
     # reformatting for display purposes and slicing for database purposes
     posts = [replace_underscores_in_dict_values(post) for post in posts]
@@ -558,10 +544,15 @@ def accounts():
     email address, majors, and a link to their profile. 
     """ 
     conn = dbi.connect()
+    accounts = helper.get_accounts(conn)
+
+    search_query = request.args.get('search_query')
+    if search_query:
+        accounts = helper.search_accounts(conn, search_query)
 
     # deletes the underscores when displaying majors 
     accounts = [replace_underscores_in_dict_values(phnum_request) 
-                    for phnum_request in helper.get_accounts(conn)]
+                    for phnum_request in accounts]
 
     return render_template('accounts.html', title="Accounts", all_users = accounts)
 

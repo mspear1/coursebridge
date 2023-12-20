@@ -13,7 +13,7 @@
 
 <h2 name="stream" style="margin-top:20px">Stream</h2>
 
-<form method="post" action="{{url_for('stream')}}" class="filter">
+<form method="get" action="{{url_for('stream')}}" class="filter">
 
   <div>
 
@@ -52,7 +52,7 @@
 
 
   <div class="btn-group">
-    <label for="tentative-date" class="inline"">Date</label><br>
+    <label for="tentative-date" class="inline">Date</label><br>
     <select id="dateDropdown" type="button" name="dateorder" style="height:35px; align-items:center; margin-left: 10px; margin-right: 15px;" 
     class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
       <div class="dropdown-menu" name="datedrop">
@@ -90,9 +90,9 @@
 
     <p>{{post.description}}</p>
     <div class="post-block">
-      <p class="inline">{% if post.date %} Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
-      <p class="inline" style="margin-left: 20px;">{% if post.location %}Location: {{post.location}} {% endif %}</p>
-      <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}On-campus: {{post.on_campus}} {% endif %}</p>
+      <p class="inline">{% if post.date %} <b>Tentative Date:</b> {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
+      <p class="inline" style="margin-left: 20px;">{% if post.location %}<b>Location:</b> {{post.location}} {% endif %}</p>
+      <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}<b>On-Campus:</b> {{post.on_campus}} {% endif %}</p>
 
       {% if post.professor %}<span class="badge badge-info">{{post.professor}} </span>{% endif %}
       {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{%
