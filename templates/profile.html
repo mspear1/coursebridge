@@ -9,6 +9,7 @@
 
 {% block content %}
 <div class="page-container">
+
   <div class="profile-container">
     {% if session['id']==id %}
     <span class="badge edit" style="font-size:20px;"><a href="{{url_for('update_profile', id=id)}}">Edit
@@ -36,8 +37,9 @@
 
     </div>
 
-    {% if id == session['id'] %}
+
     <div>
+      {% if id == session['id'] %}
       <h3 style="font-size: 20px">People Who Requested Your Phone Number</h3>
       <ul>
         {% for phnum in phnum_requests_received %}
@@ -79,36 +81,80 @@
         </div>
         {% endfor %}
       </div>
-
+      {% endif %}
     </div>
   </div>
-  {% endif %}
 
 
-  <div class="profile-stream-container">
-    {% if posts %}
-    <h2 style="margin-left:10px;">Posts by {{ user_info.name }}</h2>
-    {% for post in posts %}
-    <div class="post-container" style="width:95%;">
-      <div class="post-block">
-        <!-- <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %} -->
-          {% if post.timestamp %}<em>{{post.timestamp}}</em>{% endif %}</p>
-        {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
-        {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
-          style="margin-right:8px;">{{post.major2_minor}}</span>
-        {% endif %}
-        <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
-        {% if post.id == session['id'] %}
-        <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
-        {% endif %}
+  <div style="margin-left:10px;">
+    <div class="profile-stream-container">
+      {% if active_posts %}
+      <br>
+      <h2>Active posts by {{ user_info.name }}</h2>
+      {% for post in active_posts %}
+      <div class="post-container" style="width:95%;">
+        <div class="post-block">
+          <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %}
+            {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
+          {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
+          {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
+            style="margin-right:8px;">{{post.major2_minor}}</span>{% endif %}
+          {% if post.id == session['id'] %}
+          <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
+          {% endif %}
+          <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
+        </div>
 
+        <div class="post-block">
+          <span class="custom-badge">{{post.tag}}</span>
+          <h5 class="inline">{{post.title}}</h5>
+        </div>
 
+        <p>{{post.description}}</p>
+        <div class="post-block">
+          <p class="inline">{% if post.date %} Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
+          <p class="inline" style="margin-left: 20px;">{% if post.location %}Location: {{post.location}} {% endif %}</p>
+          <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}On-campus: {{post.on_campus}} {% endif %}
+          </p>
+
+          {% if post.professor %}<span class="badge badge-info">{{post.professor}} </span>{% endif %}
+          {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{%
+          endif %}
+        </div>
       </div>
+      {% endfor %}
+      {% else %}
+      <h2>Active posts by {{ user_info.name }}</h2>
+      {% if id == session['id'] %}
+      <h4>You don't have any active posts. <span><a href="{{url_for('create_post')}}">Create a Post!</a></span></h4>
+      {% else %}
+      <p>{{ user_info.name }} doesn't have any active posts</p>
+      {% endif %}
+      {% endif %}
+    </div>
 
+    {% if id == session['id'] %}
+    <div class="profile-stream-container">
+      {% if closed_posts %}
+      <br>
+      <h2>Closed posts by {{ user_info.name }}</h2>
+      {% for post in closed_posts %}
+      <div class="post-container" style="width:95%;">
+        <div class="post-block">
+          <p class="inline"> Closed </p>
+          {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
+          {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
+            style="margin-right:8px;">{{post.major2_minor}}</span>{% endif %}
+          {% if post.id == session['id'] %}
+          <span class="badge edit"><a href="{{url_for('update_post', pid=post.pid)}}">Edit Your Post</a></span>
+          {% endif %}
+          <span><a class="view" href="{{url_for('display_post', pid=post.pid)}}">View Post</a></span>
+        </div>
+        
       <div class="post-block">
-        <span class="custom-badge">{{post.tag}}</span>
-        <h5 class="inline">{{post.title}}</h5>
-      </div>
+          <span class="custom-badge">{{post.tag}}</span>
+          <h5 class="inline">{{post.title}}</h5>
+        </div>
 
       <p>{{post.description}}</p>
       <div class="post-block">
@@ -117,17 +163,15 @@
         <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}<b>On-Campus:</b> {{post.on_campus}} {% endif %}
         </p>
 
-
-        {% if post.professor %}<span class="badge badge-info">{{post.professor}} </span>{% endif %}
-        {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{%
-        endif %}
+          {% if post.professor %}<span class="badge badge-info">{{post.professor}} </span>{% endif %}
+          {% if post.class %}<span class="badge badge-info" style="margin-right:8px;">{{post.class}} </span>{%
+          endif %}
+        </div>
       </div>
+      {% endfor %}
+      {% endif %}
     </div>
-    {% endfor %}
-    {% else %}
-    <p>No posts found</p>
     {% endif %}
   </div>
 </div>
-
 {% endblock %}

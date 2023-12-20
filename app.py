@@ -354,6 +354,9 @@ def update_post(pid):
         else:
             helper.close_post(conn, pid)
             flash('Post was closed successfully. You can view your closed posts on your profile.')
+            id = int(session['id'])
+            # redirect to profile since closed posts can only be seen there
+            return redirect(url_for('profile', id=id)) 
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
 
 @app.route('/logout')
@@ -486,27 +489,41 @@ def profile(id):
     id = int(id)
     if request.method == 'GET':
         user_info = helper.get_user_info(conn, id)
-        user_info = replace_underscores_in_dict_values(user_info)
-        phnum_requests_received = [replace_underscores_in_dict_values(phnum_request) 
-                                   for phnum_request in helper.get_phone_requests_received(conn, id)]
-    
+        phnum_requests_received = helper.get_phone_requests_received(conn, id)
+
+        # deletes the underscores when displaying majors 
+        if user_info['major1']: 
+            user_info["major1"] = user_info['major1'].replace('_', ' ')
+        
+        if user_info['major2_minor']: 
+            user_info["major2_minor"] = user_info['major2_minor'].replace('_', ' ')
+            
+        for item in phnum_requests_received:
+            item['major1'] = item['major1'].replace('_', ' ')
+        phnum_requests_made = helper.get_phone_requests_made(conn, id)
+        for item in phnum_requests_made:
+            item['major1'] = item['major1'].replace('_', ' ')
+
         posts = helper.get_user_posts(conn, id)
         posts = sorted(posts, key=lambda x:x['date']) # sort early-oldest
 
-        phnum_requests_made = [replace_underscores_in_dict_values(phnum_request) 
-                               for phnum_request in helper.get_phone_requests_made(conn, id)]
-
-        posts = [replace_underscores_in_dict_values(post) for post in posts]
         for post in posts:
             if post['timestamp']:   
                 post['timestamp'] = get_time_difference(post['timestamp'])
-        
+            if post['major']:
+                post['major'] = post['major'].replace('_', ' ')
+            post['tag'] = post['tag'].replace('_', ' ')
+            if post['major2_minor']:
+                post['major2_minor'] = post['major2_minor'].replace('_', ' ')
             if len(post['description']) > 100: # If the description is too long, cut it short
                 post['description'] = post['description'][:100] + '...'
+        active_posts = [post for post in posts if post['status']=='open']
+        closed_posts = [post for post in posts if post['status']=='closed']
         return render_template('profile.html', user_info = user_info, 
                                 title="Profile - Coursebridge", phnum_requests_received=phnum_requests_received,
-                                phnum_requests_made=phnum_requests_made, id=id, posts=posts)
-    else:
+                                phnum_requests_made=phnum_requests_made, id=id, 
+                                closed_posts=closed_posts, active_posts=active_posts)
+    else: # post 
         if request.form.get('delete'):
             pid = request.form.get('delete')
             helper.delete_post(conn, pid)
@@ -591,4 +608,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0', port)
+    app.run('0.0.0.0', port=9003)
