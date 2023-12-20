@@ -61,7 +61,6 @@ def update_post(conn, form, time, pid):
 
     curs = dbi.dict_cursor(conn)
     
-    # Don't update timestamp for now, may change for alpha
     curs.execute('''update post set title = %s, description = %s, location = %s, 
                     on_campus = %s, tag = %s, professor = %s, class = %s, 
                     date = %s, status = %s where pid = %s''', 
@@ -133,10 +132,10 @@ def get_user_posts(conn, student_ID):
     return curs.fetchall()
 
 
-def filter_posts(conn, type, major):
+def filter_posts(conn, type, major, search_query):
     '''
-    Inputs: type of post, major
-    Filters posts based on criteron and returns the filtered ones as a dictionary
+    Inputs: type of post, major, search query
+    Filters posts based on criteron and keywords and returns the filtered ones as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
 
@@ -154,37 +153,46 @@ def filter_posts(conn, type, major):
         query += ''' and (student.major1 = %s or student.major2_minor = %s)'''
         placeholders.append(major)
         placeholders.append(major)
+    if search_query:
+        # split query into separate words to search mentions
+        search = ['%' + i + '%' for i in search_query.split()]
+        for i in search:
+            # check within title and description for each item
+            query += ''' and (title LIKE %s OR description LIKE %s) ''' 
+
+        # make each item appear 2 times for each %s placeholder
+        for i in search:
+            placeholders.append(i)
+            placeholders.append(i)
+
     
     query += ''';'''
 
     curs.execute(query, placeholders)
     return curs.fetchall()
 
-def search(conn, search_query):
+def search_accounts(conn, search_query):
     '''
     Inputs: search_query
-    Searches through posts, filters out ones without mentioned keywords
+    Searches through users, filters out ones without mentioned keywords
     '''
     # split query into separate words to search mentions
     search = ['%' + i + '%' for i in search_query.split()]
 
     curs = dbi.dict_cursor(conn)
-    sql_query = '''select student.name as studentname, student.major1 as major, 
-                    student.major2_minor as major2_minor, student.id as id, title, description, 
-                    timestamp, location, on_campus, tag, professor, class, date, status, pid
-                    from post, student 
-                    where post.sid is not NULL and post.sid = student.id'''
+    sql_query = '''select id, name, email_address, major1, major2_minor, 
+                    profile_pic, dorm_hall from student where '''
     for i in search:
         # check within title and description for each item
-        sql_query += ''' and (title LIKE %s OR description LIKE %s) ''' 
-    sql_query += ''';'''
+        sql_query += '''(name LIKE %s OR major1 LIKE %s OR major2_minor LIKE %s OR email_address LIKE %s or dorm_hall like %s) and '''
+    
+    sql_query = sql_query[:-4] + ''';''' # remove last "and", add semicolon
 
     # make each item appear 2 times for each %s placeholder
     placeholders = []
     for i in search:
-        placeholders.append(i)
-        placeholders.append(i)
-
+        for j in range(5):
+            placeholders.append(i)
     curs.execute(sql_query, placeholders)
 
     return curs.fetchall()

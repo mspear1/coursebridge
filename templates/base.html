@@ -22,8 +22,9 @@ CSS for the login and join forms-->
 <body>
             
 {% block nav %}
+<p style="color: white; margin-bottom: -1px; padding-left: 20px; background-color: #03115b; font-size: 2em;">Coursebridge</p>
 <nav>
-  <ul>
+  <ul style="padding-left: 20px;">
     <!-- Display main pages if the user is logged in -->
     {% if 'logged_in' in session and session['logged_in'] %}
 
@@ -34,9 +35,11 @@ CSS for the login and join forms-->
 
     <li><a href="{{url_for('profile', id=session['id'])}}">Profile</a></li>
     <li><a href="{{url_for('accounts')}}">Accounts</a></li>
-    <li style="float: right;"><a href="{{ url_for('logout') }}" class="logout">Logout</a></li>
+    <div style="float: right;">
+      <li><a>Welcome, {{ session['name'] }}!</a></li>
+      <li><a href="{{ url_for('logout') }}" >Logout</a></li>
+    </div>
 
-    <li class="message">Welcome, {{ session['name'] }}!</li>
     {% else %}
     <li style="float: right;"><a href="{{ url_for('logout') }}" class="logout">Logout</a></li>
 
@@ -65,14 +68,16 @@ CSS for the login and join forms-->
 
 {% block header %}  {% endblock header %}
 
+<div class='body_wrapper'>
 {% block content %}
 <h1>Welcome!</h1>
 {% endblock %}
+</div>
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   {% block end_scripts %}
   {% endblock %}
-  
+
 </body>
 
 </html>

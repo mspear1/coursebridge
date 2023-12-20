@@ -91,7 +91,7 @@
     {% for post in posts %}
     <div class="post-container" style="width:95%;">
       <div class="post-block">
-        <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %}
+        <!-- <p class="inline">Posted by {% if post.studentname %}{{post.studentname}}{% else %} Unknown {% endif %} -->
           {% if post.timestamp %}<em>{{post.timestamp}}</em>{% endif %}</p>
         {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
         {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
@@ -112,9 +112,9 @@
 
       <p>{{post.description}}</p>
       <div class="post-block">
-        <p class="inline">{% if post.date %} Tentative Date: {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
-        <p class="inline" style="margin-left: 20px;">{% if post.location %}Location: {{post.location}} {% endif %}</p>
-        <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}On-campus: {{post.on_campus}} {% endif %}
+        <p class="inline">{% if post.date %}<b>Tentative Date:</b> {{post.date.strftime('%A, %m/%d')}} {% endif %}</p>
+        <p class="inline" style="margin-left: 20px;">{% if post.location %}<b>Location:</b> {{post.location}} {% endif %}</p>
+        <p class="inline" style="margin-left: 20px;">{% if post.on_campus %}<b>On-Campus:</b> {{post.on_campus}} {% endif %}
         </p>
 
 
