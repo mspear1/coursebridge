@@ -37,8 +37,9 @@
 
     </div>
 
-    {% if id == session['id'] %}
+
     <div>
+      {% if id == session['id'] %}
       <h3 style="font-size: 20px">People Who Requested Your Phone Number</h3>
       <ul>
         {% for phnum in phnum_requests_received %}
@@ -80,10 +81,9 @@
         </div>
         {% endfor %}
       </div>
-
+      {% endif %}
     </div>
   </div>
-  {% endif %}
 
 
   <div style="margin-left:10px;">
