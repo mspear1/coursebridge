@@ -296,7 +296,7 @@ def update_comment(conn, cid, comment):
     curs = dbi.dict_cursor(conn)
     curs.execute('''update comment set description = %s
                     where cid=%s''',
-                    [cid, comment])
+                    [comment, cid])
     conn.commit()
 
 def delete_comment(conn, cid):
@@ -410,6 +410,10 @@ def close_old_posts(conn):
     conn.commit()
 
 def get_comment_given_cid(conn, cid):
+    '''
+    Input: cid, the comment id
+    Return the comment content given the cid
+    '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''select description from comment where cid=%s''',
                     [cid])

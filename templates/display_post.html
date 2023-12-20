@@ -10,7 +10,7 @@
 <div class="post-container" style="width: 60%">
 
   <div class="post-block">
-    <p class="inline">Posted by {{post.studentname}} {% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
+    <p class="inline">Posted by {{post.studentname}} {% if post.timestamp %}<em>{{post.timestamp}}</em>{% endif %}</p>
     {% if post.major1 %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
     {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
       style="margin-left:12px;">{{post.major2_minor}}</span>
@@ -34,15 +34,16 @@
 
     <div style="display: block;">
       {% if phnum_request %}
-        <p style="color:rgb(41, 13, 124)">You requested their phone number</p>
+      <p style="color:rgb(41, 13, 124)">You requested their phone number</p>
       {% else %}
-      <button class="btn btn-primary"><a style="color: rgb(233, 246, 250);" href="{{ url_for('request_ph', pid=post.pid) }}">
-        Request Phone Number</a></button>
+      <button class="btn btn-primary"><a style="color: rgb(233, 246, 250);"
+          href="{{ url_for('request_ph', pid=post.pid) }}">
+          Request Phone Number</a></button>
       {% endif %}
     </div>
   </div>
 
-  
+
 </div>
 
 <div class="comment-container" style="margin-top:10px;">
@@ -51,21 +52,24 @@
   {% if comment.sid == session['id'] %}
 
   <div class="user-comment">
-    <p class="rid-bottom">{{ comment.name }} {{comment.timestamp}}</p>
+    <p class="rid-bottom">{{ comment.name }} <em>{{comment.timestamp}}</em></p>
     <p class="rid-bottom">{{ comment.description }}</p>
-    <button><a href="{{ url_for('update_comment', cid=comment.cid) }}">Edit</a></button>
+    <button class="edit-comment"><a style="color:azure;"
+        href="{{ url_for('update_comment', cid=comment.cid) }}">Edit</a></button>
   </div>
 
   {% else %}
   <div class="other-comment">
-    <p class="rid-bottom">{{ comment.name }} {{comment.timestamp}}</p>
+    <p class="rid-bottom">{{ comment.name }} <em>{{comment.timestamp}}</em></p>
     <p class="rid-bottom">{{ comment.description }}</p>
   </div>
   {% endif %}
   {% endfor %}
   <form id="commentForm" method=post action="{{ url_for('display_post', pid=post.pid) }}">
-    <label for="comment">Comment:</label>
-    <textarea id="comment" name="comment" required></textarea>
+    <div class="form-group">
+      <label for="comment" style="display: block;">Comment:</label>
+      <textarea id="comment" name="comment" required></textarea>
+    </div>
 
     <input type="submit" value="Post Comment">
   </form>
