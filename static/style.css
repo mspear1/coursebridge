@@ -409,7 +409,7 @@ ul {
     border-radius: 5px;
     width: 500px;
     @media (min-width: 800px) {
-        width: 80%;
+        width: 50%;
     }
   }
 
