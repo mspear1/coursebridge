@@ -142,7 +142,7 @@ button {
     background-color: rgb(221, 241, 248);
     border: 2px solid rgb(134, 227, 253);
     border-radius: 8px;
-    margin-top: 20px;
+    margin: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 60%;
 
