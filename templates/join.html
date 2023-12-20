@@ -7,7 +7,7 @@
     <form method="post" action="{{ url_for('join') }}">
         <a href = "{{url_for('login')}}"> Already have an account? Login here </a>
         <label for="username">Email Address:</label>
-        <input type="text" class="login" id="username" name="username" required>
+        <input type="text" class="login" id="username" name="username" placeholder="example@wellesley.edu" style="color: #333;" required>
         <br>
         <label for="password1">Password:</label>
         <input type="password" class="login" id="password1" name="password1" required>
