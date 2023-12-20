@@ -39,14 +39,16 @@ def index():
     conn = dbi.connect()
     helper.close_old_posts(conn)
 
-    
-    # Just in case something is still in the session
-    # Using a list version of session.keys because of changing size due to pop(key)
-    for key in list(session.keys()):
-        if key != '_flashes':
-            session.pop(key)
+    if 'name' in session:
+        return redirect(url_for('stream'))
+    else:
+        # Just in case something is still in the session
+        # Using a list version of session.keys because of changing size due to pop(key)
+        for key in list(session.keys()):
+            if key != '_flashes':
+                session.pop(key)
 
-    return render_template('login.html',title='Login Page')
+        return render_template('login.html',title='Login Page')
 
 @app.route('/main/')
 def main():
