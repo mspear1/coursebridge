@@ -368,6 +368,9 @@ def update_post(pid):
         else:
             helper.close_post(conn, pid)
             flash('Post was closed successfully. You can view your closed posts on your profile.')
+            id = int(session['id'])
+            # redirect to profile since closed posts can only be seen there
+            return redirect(url_for('profile', id=id)) 
         return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
 
 @app.route('/logout')
@@ -614,4 +617,4 @@ if __name__ == '__main__':
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)
     app.debug = True
-    app.run('0.0.0.0', port=8999)
+    app.run('0.0.0.0', port)
