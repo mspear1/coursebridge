@@ -14,15 +14,18 @@
 <form method=post action="{{url_for('update_post', pid=pid)}}" style="width:500px; margin-top: 5px; margin-left: 50px;">
     <div class="form-group">
         <label for="title">Title (required)</label>
-        <input required type="text" class="form-control" name="title" id="title" maxlength="30" placeholder="Title" value="{{post.title}}">
+        <input required type="text" class="form-control" name="title" id="title" 
+            maxlength="30" placeholder="Title" value="{{post.title}}">
     </div>
     <div class="form-group">
         <label for="description">Description (required)</label>
-        <textarea required type="text" name="description" id="description" rows=3 cols=60 maxlength="500">{{post.description}}</textarea><br>
+        <textarea required type="text" name="description" id="description" 
+            rows=3 cols=60 maxlength="500">{{post.description}}</textarea><br>
     </div>
     <div class="form-group">
         <label for="location">Location</label>
-        <input type="text" class="form-control" name="location" id="location" maxlength="50" placeholder="Location" value="{{post.location}}">
+        <input type="text" class="form-control" name="location" id="location" 
+            maxlength="50" placeholder="Location" value="{{post.location}}">
     </div>
 
     <fieldset>
@@ -97,9 +100,11 @@
     </div>
 
     <button type="submit" name="submit" class="btn btn-primary" value="update" >Update</button>
-    <button type="submit" name="submit" class="btn btn-primary" style="background-color: rgb(155, 54, 4);" value="delete" >Delete</button>
+    <button type="submit" name="submit" class="btn btn-primary" 
+        style="background-color: rgb(155, 54, 4);" value="delete" >Delete</button>
 
-    <button type="submit" name="submit" class="btn btn-primary" style="background-color: rgb(111, 100, 3)" value="close" >Archive</button>
+    <button type="submit" name="submit" class="btn btn-primary" 
+        style="background-color: rgb(111, 100, 3)" value="close" >Archive</button>
 
 </form>
 
