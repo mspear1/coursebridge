@@ -22,10 +22,10 @@ app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024 # 2 MB
 app.secret_key = 'your secret here'
 # replace that with a random key
 
-# app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
-#                                           'abcdefghijklmnopqrstuvxyz' +
-#                                           '0123456789'))
-#                            for i in range(20) ])
+app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                           'abcdefghijklmnopqrstuvxyz' +
+                                           '0123456789'))
+                            for i in range(20) ])
 
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
@@ -95,7 +95,7 @@ def stream():
         search_query=''
         posts = helper.get_posts(conn)
 
-    date_order = request.form.get('dateorder')
+    date_order = request.args.get('dateorder')
 
     # sort posts by date order
     posts = sorted(posts, key=lambda x: x['date'], reverse=(date_order == 'late'))
@@ -157,7 +157,8 @@ def create_post():
         helper.add_post(conn, form_info, timestamp, id)
         flash('Your post is created!')
         
-        return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
+        # redirect to the stream page so users can view others' posts
+        return redirect(url_for('stream')) 
 
 @app.route('/createprofile/', methods=["GET", "POST"])
 def create_profile():
@@ -169,7 +170,9 @@ def create_profile():
     if request.method == 'GET':
         majors_list = [[i,i.replace("_"," ")] for i in helper.get_majors()]
 
-        return render_template('profile_form.html', title="Create Profile - Coursebridge", majors=majors_list)
+        return render_template('profile_form.html',
+                                title="Create Profile - Coursebridge", 
+                                majors=majors_list)
     else:
         try:
             id = int(session['id'])
@@ -212,6 +215,7 @@ def create_profile():
 @app.route('/updateprofile/<id>', methods=["GET", "POST"])
 def update_profile(id):
     '''
+    Input: id (user ID)
     Method for updating the user's profile
     Renders the profile form for GET, 
     inserts the form information into database for POST
@@ -266,7 +270,7 @@ def update_profile(id):
 @app.route('/display/<pid>', methods=["GET", "POST"])  # may not need post
 def display_post(pid):
     '''
-    Inputs: pid, the post ID
+    Inputs: pid (post ID)
     Method for displaying a singular full post
     Can also post a comment for the post
     '''
@@ -303,7 +307,7 @@ def display_post(pid):
 @app.route('/phrequest/<pid>', methods=['GET'])
 def request_ph(pid):
     '''
-    Inputs: pid, the post ID
+    Inputs: pid (post ID)
     Method for handling the phone number request
     '''
     conn = dbi.connect()
@@ -316,7 +320,7 @@ def request_ph(pid):
 @app.route('/update/<pid>', methods=["GET", "POST"])
 def update_post(pid):
     '''
-    Inputs: pid, postId
+    Inputs: pid (post ID)
     Method for getting the update post page and also updating the post
     '''
     conn = dbi.connect()
@@ -324,7 +328,8 @@ def update_post(pid):
         post = helper.get_postinfo(conn, pid)
         post['date'] = post['date'].strftime("%m-%d-%Y") # To prefill accurately
 
-        return render_template('update_post.html', title='Update Post - Coursebridge', post=post, pid=pid)
+        return render_template('update_post.html', title='Update Post - Coursebridge', 
+                                post=post, pid=pid)
     else:
         conn = dbi.connect()
         action = request.form.get('submit')
@@ -350,7 +355,8 @@ def update_post(pid):
             id = int(session['id'])
             # redirect to profile since closed posts can only be seen there
             return redirect(url_for('profile', id=id)) 
-        return redirect(url_for('stream')) # redirect to the stream page so users can view others' posts
+        # redirect to the stream page so users can view others' posts
+        return redirect(url_for('stream')) 
 
 @app.route('/logout')
 def logout():
@@ -411,7 +417,9 @@ def join():
     session['id'] = id
     session['logged_in'] = True
     session['visits'] = 1
-    return redirect( url_for('create_profile') )  # redirect to creating profile after joining
+
+    # redirect to creating profile after joining
+    return redirect( url_for('create_profile') )  
 
 @app.route('/login/', methods=["POST", "GET"])
 def login():
@@ -551,13 +559,18 @@ def accounts():
 
 @app.route('/update_comment/<cid>', methods=["GET", "POST"])  # may not need post
 def update_comment(cid):
+    """
+    Input: cid (comment ID)
+    Updates or deletes comments under a post. 
+    """
     conn = dbi.connect()
     id = int(session['id'])
     post_id = helper.get_post_id_given_cid(conn, cid)['pid']
     if request.method == 'GET': 
         comment = helper.get_comment_given_cid(conn, cid)['description']
         
-        return render_template('update_comment.html', title="Update Comment", cid=cid, comment=comment, pid=post_id)
+        return render_template('update_comment.html', title="Update Comment", cid=cid, 
+                                comment=comment, pid=post_id)
     else:
         comment = request.form.get('comment')
         if request.form.get('submit') == 'update':

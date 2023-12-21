@@ -135,7 +135,7 @@
       {% for post in closed_posts %}
       <div class="post-container" style="width:95%;">
         <div class="post-block">
-          <p class="inline"> Closed {% if post.timestamp %}, from {{post.timestamp}}{% endif %} </p>
+          <p class="inline"> {% if post.timestamp %} {{post.timestamp}}{% endif %} </p>
           {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
           {% if post.major2_minor %}<span class="badge badge-pill badge-primary"
             style="margin-right:8px;">{{post.major2_minor}}</span>{% endif %}
