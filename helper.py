@@ -88,8 +88,6 @@ def close_post(conn, pid):
     conn.commit()
     
 
-
-
 def get_postinfo(conn, pid):
     '''
     Inputs: post id 
@@ -165,7 +163,6 @@ def filter_posts(conn, type, major, search_query):
             placeholders.append(i)
             placeholders.append(i)
 
-    
     query += ''';'''
 
     curs.execute(query, placeholders)
@@ -250,7 +247,7 @@ def update_profile_info(conn, name, phnumber, major1, major2_minor, dorm, id):
 
 def get_user_info(conn, id):
     '''
-    Input: user's id
+    Input: user id
     Gets the user's information given the id and returns as a dictionary
     '''
     curs = dbi.dict_cursor(conn)
@@ -354,7 +351,7 @@ def get_accounts(conn):
 
 def get_phone_requests_received(conn, id):
     '''
-    Inputs: id of user
+    Inputs: user id
     Gets all the phone number requests that the user received along with requester info,
     returns as a dictionary
     '''
@@ -367,7 +364,7 @@ def get_phone_requests_received(conn, id):
 
 def get_phone_requests_made(conn, id):
     '''
-    Inputs: id of user
+    Inputs: user id
     Gets all the phone number requests that the user made along with approver info,
     returns as a dictionary
     '''
@@ -380,7 +377,7 @@ def get_phone_requests_made(conn, id):
 
 def accept_phone_req(conn, id, sid):
     ''''
-    Inputs: id of approver, sid of requester
+    Inputs: id of approver, sid of requester (sid: student id)
     Changes approved status to 'yes'
     '''
     curs = dbi.dict_cursor(conn)
@@ -406,8 +403,9 @@ def get_majors():
 
 
 def close_old_posts(conn):
-    #current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-
+    '''
+    Closes posts older than 40 days
+    '''
     # Since this isn't an active site, want to keep many posts on, so
     # setting cutoff date to 40 days ago for now
     cutoff_time = (datetime.now() - timedelta(days=40)).strftime("%Y-%m-%d %H:%M")
@@ -427,7 +425,7 @@ def get_comment_given_cid(conn, cid):
                     [cid])
     return curs.fetchone()
 
-# May not keep
+
 def get_post_id_given_cid(conn, cid):
     '''
     Get the post id given cid, this function is to help 
@@ -437,5 +435,3 @@ def get_post_id_given_cid(conn, cid):
     curs.execute('''select pid from comment where cid = %s''',
                     [cid])
     return curs.fetchone()
-
-
