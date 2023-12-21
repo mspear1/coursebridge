@@ -87,7 +87,7 @@
       <br>
       <h2>Active posts by {{ user_info.name }}</h2>
       {% for post in active_posts %}
-      <div class="post-container" style="width:95%;">
+      <div class="post-container">
         <div class="post-block">
           <p class="inline">{% if post.timestamp %}{{post.timestamp}}{% endif %}</p>
           {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}
@@ -133,7 +133,7 @@
       <br>
       <h2>Closed posts by {{ user_info.name }}</h2>
       {% for post in closed_posts %}
-      <div class="post-container" style="width:95%;">
+      <div class="post-container">
         <div class="post-block">
           <p class="inline"> {% if post.timestamp %} {{post.timestamp}}{% endif %} </p>
           {% if post.major %}<span class="badge badge-pill badge-primary">{{post.major}}</span>{% endif %}

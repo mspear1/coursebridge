@@ -60,7 +60,7 @@ def main():
 def replace_underscores_in_dict_values(dictionary):
     '''
     Helper function for replacing underscores in dictionaries
-    from sql queries, mostly for major1 and major2 enums
+    from sql queries, for major1 and/or major2 enums
     '''
     updated = {}
     for key, value in dictionary.items():
@@ -489,33 +489,21 @@ def profile(id):
     conn = dbi.connect()
     id = int(id)
     if request.method == 'GET':
-        user_info = helper.get_user_info(conn, id)
-        phnum_requests_received = helper.get_phone_requests_received(conn, id)
+        user_info = replace_underscores_in_dict_values(helper.get_user_info(conn, id))
+        phnum_requests_received = [replace_underscores_in_dict_values(item) 
+                                    for item in helper.get_phone_requests_received(conn, id)]
 
         # deletes the underscores when displaying majors 
-        if user_info['major1']: 
-            user_info["major1"] = user_info['major1'].replace('_', ' ')
-        
-        if user_info['major2_minor']: 
-            user_info["major2_minor"] = user_info['major2_minor'].replace('_', ' ')
-            
-        for item in phnum_requests_received:
-            item['major1'] = item['major1'].replace('_', ' ')
-        phnum_requests_made = helper.get_phone_requests_made(conn, id)
-        for item in phnum_requests_made:
-            item['major1'] = item['major1'].replace('_', ' ')
+        phnum_requests_made = [replace_underscores_in_dict_values(item) 
+                                for item in helper.get_phone_requests_made(conn, id)]
 
         posts = helper.get_user_posts(conn, id)
         posts = sorted(posts, key=lambda x:x['date']) # sort early-oldest
 
+        posts = [replace_underscores_in_dict_values(post) for post in posts]
         for post in posts:
             if post['timestamp']:   
                 post['timestamp'] = get_time_difference(post['timestamp'])
-            if post['major']:
-                post['major'] = post['major'].replace('_', ' ')
-            post['tag'] = post['tag'].replace('_', ' ')
-            if post['major2_minor']:
-                post['major2_minor'] = post['major2_minor'].replace('_', ' ')
             if len(post['description']) > 100: # If the description is too long, cut it short
                 post['description'] = post['description'][:100] + '...'
         active_posts = [post for post in posts if post['status']=='open']
